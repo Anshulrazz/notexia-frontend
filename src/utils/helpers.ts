@@ -61,7 +61,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
 export function getAvatarUrl(avatar?: string): string | undefined {
   if (!avatar) return undefined
   if (avatar.startsWith('http')) return avatar
-  return `${API_URL}${avatar}`
+  if (avatar.startsWith('/')) return `${API_URL}${avatar}`
+  return `${API_URL}/uploads/avatars/${avatar}`
 }
 
 export function getFileUrl(path?: string): string | undefined {
