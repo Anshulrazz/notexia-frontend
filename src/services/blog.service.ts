@@ -56,4 +56,17 @@ export const blogService = {
   async likeBlog(blogId: string): Promise<void> {
     await api.post(`/api/blogs/${blogId}/like`)
   },
+
+  async updateBlog(blogId: string, payload: { title?: string; content?: string; tags?: string }): Promise<BlogResponse> {
+    const { data } = await api.put(`/api/blogs/${blogId}`, payload)
+    return {
+      success: data.success,
+      blog: data.blog,
+    }
+  },
+
+  async deleteBlog(blogId: string): Promise<{ success: boolean }> {
+    const { data } = await api.delete(`/api/blogs/${blogId}`)
+    return { success: data.success }
+  },
 }

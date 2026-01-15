@@ -94,4 +94,9 @@ export const doubtService = {
       acceptedAnswer: data.acceptedAnswer,
     }
   },
+
+  async deleteDoubt(doubtId: string): Promise<{ success: boolean }> {
+    const { data } = await api.delete(`/api/doubts/${doubtId}`)
+    return { success: data.success }
+  },
 }

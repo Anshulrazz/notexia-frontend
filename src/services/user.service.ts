@@ -65,4 +65,12 @@ export const userService = {
       avatar,
     }
   },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const { data } = await api.put('/api/users/me/password', { currentPassword, newPassword })
+    return {
+      success: data.success,
+      message: data.message || 'Password updated successfully',
+    }
+  },
 }

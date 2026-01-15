@@ -100,4 +100,14 @@ export const forumService = {
     const { data } = await api.post(`/api/forums/${forumId}/threads/${threadId}/replies`, { content })
     return data.reply || data
   },
+
+  async deleteForum(forumId: string): Promise<{ success: boolean }> {
+    const { data } = await api.delete(`/api/forums/${forumId}`)
+    return { success: data.success }
+  },
+
+  async leaveForum(forumId: string): Promise<{ success: boolean }> {
+    const { data } = await api.post(`/api/forums/${forumId}/leave`)
+    return { success: data.success }
+  },
 }
