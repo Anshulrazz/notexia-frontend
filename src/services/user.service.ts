@@ -51,7 +51,11 @@ export const userService = {
   async updateAvatar(file: File): Promise<AvatarResponse> {
     const formData = new FormData()
     formData.append('avatar', file)
-    const { data } = await api.put('/api/users/me/avatar', formData)
+    const { data } = await api.put('/api/users/me/avatar', formData, {
+      headers: {
+        'Content-Type': undefined,
+      },
+    })
     return {
       success: data.success,
       avatar: data.avatar,
