@@ -77,7 +77,21 @@ export default function ForumsPage() {
     }
   }
 
+  const renderValue = (val: any, fallback: string = '') => {
+    if (val === null || val === undefined) return fallback
+    if (typeof val === 'string' || typeof val === 'number') return String(val)
+    if (typeof val === 'object') {
+      if (Array.isArray(val)) return String(val.length)
+      if (val.name && typeof val.name === 'string') return val.name
+      if (val.name && typeof val.name === 'object' && val.name.name) return String(val.name.name)
+      if (val.title && typeof val.title === 'string') return val.title
+      return fallback
+    }
+    return fallback
+  }
+
   return (
+
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -152,20 +166,21 @@ export default function ForumsPage() {
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                      <span className="text-white font-bold">{typeof forum.name === 'object' && forum.name !== null ? (forum.name as { name?: string }).name?.[0] || 'F' : forum.name?.[0] || 'F'}</span>
+                      <span className="text-white font-bold">{renderValue(forum.name, 'F')[0]}</span>
                     </div>
                     <ReportButton contentType="forum" contentId={forum._id} />
                   </div>
 
-                  <h3 className="text-lg font-semibold text-white mb-2">{typeof forum.name === 'object' && forum.name !== null ? (forum.name as { name?: string }).name || 'Unnamed' : forum.name}</h3>
-                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{typeof forum.description === 'object' && forum.description !== null ? (forum.description as { name?: string }).name || 'No description' : forum.description || 'No description'}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{renderValue(forum.name, 'Unnamed')}</h3>
+                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{renderValue(forum.description, 'No description')}</p>
 
                 <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
                   <span className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    {forum.members || 0} members
+                    {renderValue(forum.members, '0')} members
                   </span>
                 </div>
+
 
                 <Button
                   className="w-full bg-gradient-to-r from-amber-500 to-orange-500"
