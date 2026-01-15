@@ -40,8 +40,10 @@ export default function NotesPage() {
 
   const [newNote, setNewNote] = useState({
     title: '',
+    description: '',
     subject: '',
     tags: '',
+    type: 'note' as 'note' | 'project',
     file: null as File | null,
   })
 
@@ -71,16 +73,18 @@ export default function NotesPage() {
     }
 
     setIsCreating(true)
-    try {
-      await noteService.createNote({
-        title: newNote.title,
-        subject: newNote.subject,
-        tags: newNote.tags.split(',').map((t) => t.trim()).filter(Boolean),
-        file: newNote.file,
-      })
-      toast.success('Note uploaded successfully')
-      setIsCreateOpen(false)
-      setNewNote({ title: '', subject: '', tags: '', file: null })
+      try {
+        await noteService.createNote({
+          title: newNote.title,
+          description: newNote.description,
+          subject: newNote.subject,
+          tags: newNote.tags.split(',').map((t) => t.trim()).filter(Boolean),
+          type: newNote.type,
+          file: newNote.file,
+        })
+        toast.success('Note uploaded successfully')
+        setIsCreateOpen(false)
+        setNewNote({ title: '', description: '', subject: '', tags: '', type: 'note', file: null })
       loadNotes()
     } catch {
       toast.error('Failed to upload note')

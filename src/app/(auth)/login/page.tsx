@@ -39,7 +39,7 @@ export default function LoginPage() {
     setIsLoading(true)
     try {
       const response = await authService.login(data)
-      login(response.token, response.user)
+      login(response.user)
       toast.success('Welcome back!')
       router.push('/dashboard')
     } catch {

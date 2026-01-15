@@ -1,31 +1,55 @@
 import api from './api'
 
+export interface NoteFile {
+  filename: string
+  path: string
+  mimetype: string
+  size: number
+}
+
+export interface NoteComment {
+  user: {
+    name: string
+  }
+  text: string
+  createdAt: string
+}
+
 export interface Note {
   _id: string
   id?: string
   title: string
   description?: string
-  subject: string
-  file: {
-    path: string
-    filename?: string
+  subject?: string
+  type: 'note' | 'project'
+  file: NoteFile
+  uploader: {
+    _id?: string
+    id?: string
+    name: string
+    college?: string
   }
-  author: {
+  author?: {
     _id?: string
     id?: string
     name: string
     avatar?: string
+    college?: string
   }
   likes: string[]
+  comments: NoteComment[]
   downloads: number
   tags: string[]
   createdAt: string
+  updatedAt?: string
 }
 
 interface CreateNotePayload {
   title: string
-  subject: string
+  description?: string
+  subject?: string
   tags: string[]
+  type: 'note' | 'project'
   file: File
 }
 
@@ -39,9 +63,19 @@ interface LikeResponse {
   likes: number
 }
 
+interface CommentResponse {
+  success: boolean
+  comments: NoteComment[]
+}
+
+interface DownloadResponse {
+  success: boolean
+  downloads: number
+}
+
 export const noteService = {
-  async getNotes(params?: { subject?: string; search?: string }): Promise<Note[]> {
-    const { data } = await api.get('/api/notes', { params })
+  async getNotes(params?: { subject?: string; search?: string; type?: string }): Promise<Note[]> {
+    const { data } = await api.get('/notes', { params })
     if (Array.isArray(data)) return data
     if (data.notes) return data.notes
     if (data.data) return data.data
@@ -49,7 +83,7 @@ export const noteService = {
   },
 
   async getNote(noteId: string): Promise<Note> {
-    const { data } = await api.get(`/api/notes/${noteId}`)
+    const { data } = await api.get(`/notes/${noteId}`)
     return data.note || data
   },
 
@@ -57,10 +91,12 @@ export const noteService = {
     const formData = new FormData()
     formData.append('note', payload.file)
     formData.append('title', payload.title)
-    formData.append('subject', payload.subject)
-    formData.append('tags', payload.tags.join(','))
+    formData.append('type', payload.type)
+    if (payload.description) formData.append('description', payload.description)
+    if (payload.subject) formData.append('subject', payload.subject)
+    if (payload.tags.length > 0) formData.append('tags', payload.tags.join(','))
 
-    const { data } = await api.post('/api/notes', formData, {
+    const { data } = await api.post('/notes', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -71,28 +107,40 @@ export const noteService = {
     }
   },
 
+  async updateNote(noteId: string, payload: { title?: string; subject?: string; tags?: string[] }): Promise<NoteResponse> {
+    const { data } = await api.put(`/notes/${noteId}`, payload)
+    return {
+      success: data.success,
+      note: data.data?.note || data.note,
+    }
+  },
+
+  async deleteNote(noteId: string): Promise<{ success: boolean }> {
+    const { data } = await api.delete(`/notes/${noteId}`)
+    return { success: data.success }
+  },
+
   async likeNote(noteId: string): Promise<LikeResponse> {
-    const { data } = await api.post(`/api/notes/${noteId}/like`)
+    const { data } = await api.post(`/notes/${noteId}/like`)
     return {
       success: data.success,
       likes: data.likes,
     }
   },
 
-  async downloadNote(noteId: string): Promise<void> {
-    await api.post(`/api/notes/${noteId}/download`)
-  },
-
-  async updateNote(noteId: string, payload: { title?: string; subject?: string; tags?: string[] }): Promise<NoteResponse> {
-    const { data } = await api.put(`/api/notes/${noteId}`, payload)
+  async addComment(noteId: string, text: string): Promise<CommentResponse> {
+    const { data } = await api.post(`/notes/${noteId}/comment`, { text })
     return {
       success: data.success,
-      note: data.note,
+      comments: data.comments,
     }
   },
 
-  async deleteNote(noteId: string): Promise<{ success: boolean }> {
-    const { data } = await api.delete(`/api/notes/${noteId}`)
-    return { success: data.success }
+  async downloadNote(noteId: string): Promise<DownloadResponse> {
+    const { data } = await api.post(`/notes/${noteId}/download`)
+    return {
+      success: data.success,
+      downloads: data.downloads,
+    }
   },
 }

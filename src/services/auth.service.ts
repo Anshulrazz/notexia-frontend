@@ -17,16 +17,14 @@ interface RegisterPayload {
 
 interface AuthResponse {
   success: boolean
-  token: string
   user: User
 }
 
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/login', payload)
+    const { data } = await api.post('/auth/login', payload)
     return {
       success: data.success,
-      token: data.token,
       user: {
         id: data.user.id || data.user._id,
         email: data.user.email,
@@ -42,10 +40,9 @@ export const authService = {
   },
 
   async register(payload: RegisterPayload): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/register', payload)
+    const { data } = await api.post('/auth/register', payload)
     return {
       success: data.success,
-      token: data.token,
       user: {
         id: data.user.id || data.user._id,
         email: data.user.email,
@@ -61,10 +58,9 @@ export const authService = {
   },
 
   async googleLogin(googleToken: string): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/google', { token: googleToken })
+    const { data } = await api.post('/auth/google', { token: googleToken })
     return {
       success: data.success,
-      token: data.token,
       user: {
         id: data.user.id || data.user._id,
         email: data.user.email,
@@ -80,7 +76,7 @@ export const authService = {
   },
 
   async getMe(): Promise<User> {
-    const { data } = await api.get('/api/auth/me')
+    const { data } = await api.get('/auth/me')
     const user = data.user || data
     return {
       id: user.id || user._id,
@@ -92,7 +88,15 @@ export const authService = {
       college: user.college,
       branch: user.branch,
       year: user.year,
+      reputation: user.reputation,
       createdAt: user.createdAt,
+    }
+  },
+
+  async logout(): Promise<void> {
+    try {
+      await api.post('/auth/logout')
+    } catch {
     }
   },
 }

@@ -47,32 +47,32 @@ export default function ForumDetailPage() {
     }
   }
 
-  const handleJoin = async () => {
-    if (!forum) return
-    setIsJoining(true)
-    try {
-      await forumService.joinForum(forum._id)
-      setForum((prev) => {
-        if (!prev) return null
-        const currentMembers = Array.isArray(prev.members) ? prev.members : []
-        return { ...prev, members: [...currentMembers, 'user'] }
-      })
-      toast.success('Joined forum successfully')
-    } catch {
-      toast.error('Failed to join forum')
-    } finally {
-      setIsJoining(false)
+    const handleJoin = async () => {
+      if (!forum) return
+      setIsJoining(true)
+      try {
+        await forumService.joinForum(forum._id)
+        setForum((prev) => {
+          if (!prev) return null
+          const currentMembers = Array.isArray(prev.members) ? prev.members : []
+          return { ...prev, members: [...currentMembers, { name: 'user' }] }
+        })
+        toast.success('Joined forum successfully')
+      } catch {
+        toast.error('Failed to join forum')
+      } finally {
+        setIsJoining(false)
+      }
     }
-  }
 
   const handleCreateThread = async () => {
     if (!forum || !newThread.title || !newThread.content) return
     setIsCreatingThread(true)
     try {
-      const thread = await forumService.createThread(forum._id, newThread)
+      const result = await forumService.createThread(forum._id, newThread)
       setForum((prev) => {
         if (!prev) return null
-        return { ...prev, threads: [thread, ...(prev.threads || [])] }
+        return { ...prev, threads: [...result.threads, ...(prev.threads || [])] }
       })
       setNewThread({ title: '', content: '' })
       setDialogOpen(false)
@@ -107,10 +107,8 @@ export default function ForumDetailPage() {
     }
   }
 
-  const getMembersCount = (members: string[] | number | undefined): number => {
-    if (Array.isArray(members)) return members.length
-    if (typeof members === 'number') return members
-    return 0
+  const getMembersCount = (members: { _id?: string; id?: string; name: string }[] | undefined): number => {
+    return members?.length || 0
   }
 
   const getThreadsCount = (threads: Thread[] | undefined): number => {

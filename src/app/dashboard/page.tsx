@@ -21,10 +21,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await adminService.getStats()
-        setStats(data)
-      } catch {
-        setStats({ users: 0, notes: 0, doubts: 0, blogs: 0, forums: 0, reports: 0 })
+          const data = await adminService.getStats()
+          setStats(data)
+        } catch {
+          setStats({ totalUsers: 0, totalNotes: 0, totalDoubts: 0, totalBlogs: 0, totalForums: 0 })
       } finally {
         setIsLoading(false)
       }
@@ -33,10 +33,10 @@ export default function DashboardPage() {
   }, [])
 
   const statCards = [
-    { label: 'Notes Shared', value: stats?.notes ?? 0, icon: FileText, color: 'from-violet-500 to-fuchsia-500' },
-    { label: 'Doubts Asked', value: stats?.doubts ?? 0, icon: HelpCircle, color: 'from-blue-500 to-cyan-500' },
-    { label: 'Forums', value: stats?.forums ?? 0, icon: Users, color: 'from-amber-500 to-orange-500' },
-    { label: 'Blogs Written', value: stats?.blogs ?? 0, icon: BookOpen, color: 'from-emerald-500 to-teal-500' },
+    { label: 'Notes Shared', value: stats?.totalNotes ?? stats?.notes ?? 0, icon: FileText, color: 'from-violet-500 to-fuchsia-500' },
+    { label: 'Doubts Asked', value: stats?.totalDoubts ?? stats?.doubts ?? 0, icon: HelpCircle, color: 'from-blue-500 to-cyan-500' },
+    { label: 'Forums', value: stats?.totalForums ?? stats?.forums ?? 0, icon: Users, color: 'from-amber-500 to-orange-500' },
+    { label: 'Blogs Written', value: stats?.totalBlogs ?? stats?.blogs ?? 0, icon: BookOpen, color: 'from-emerald-500 to-teal-500' },
   ]
 
   return (

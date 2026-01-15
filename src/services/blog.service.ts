@@ -6,16 +6,16 @@ export interface Blog {
   title: string
   content: string
   excerpt?: string
-  coverImage?: string
+  tags: string[]
   author: {
     _id?: string
     id?: string
     name: string
     avatar?: string
   }
+  published: boolean
   likes: string[]
   views: number
-  tags: string
   createdAt: string
   updatedAt?: string
 }
@@ -23,7 +23,8 @@ export interface Blog {
 interface CreateBlogPayload {
   title: string
   content: string
-  tags: string
+  tags?: string
+  published?: boolean
 }
 
 interface BlogResponse {
@@ -31,9 +32,14 @@ interface BlogResponse {
   blog: Blog
 }
 
+interface LikeResponse {
+  success: boolean
+  likes: number
+}
+
 export const blogService = {
   async getBlogs(params?: { tag?: string; search?: string }): Promise<Blog[]> {
-    const { data } = await api.get('/api/blogs', { params })
+    const { data } = await api.get('/blogs', { params })
     if (Array.isArray(data)) return data
     if (data.blogs) return data.blogs
     if (data.data) return data.data
@@ -41,32 +47,36 @@ export const blogService = {
   },
 
   async getBlog(blogId: string): Promise<Blog> {
-    const { data } = await api.get(`/api/blogs/${blogId}`)
+    const { data } = await api.get(`/blogs/${blogId}`)
     return data.blog || data
   },
 
   async createBlog(payload: CreateBlogPayload): Promise<BlogResponse> {
-    const { data } = await api.post('/api/blogs', payload)
+    const { data } = await api.post('/blogs', payload)
     return {
       success: data.success,
       blog: data.blog,
     }
   },
 
-  async likeBlog(blogId: string): Promise<void> {
-    await api.post(`/api/blogs/${blogId}/like`)
-  },
-
-  async updateBlog(blogId: string, payload: { title?: string; content?: string; tags?: string }): Promise<BlogResponse> {
-    const { data } = await api.put(`/api/blogs/${blogId}`, payload)
+  async updateBlog(blogId: string, payload: { title?: string; content?: string; tags?: string[] | string }): Promise<BlogResponse> {
+    const { data } = await api.put(`/blogs/${blogId}`, payload)
     return {
       success: data.success,
-      blog: data.blog,
+      blog: data.data?.blog || data.blog,
     }
   },
 
   async deleteBlog(blogId: string): Promise<{ success: boolean }> {
-    const { data } = await api.delete(`/api/blogs/${blogId}`)
+    const { data } = await api.delete(`/blogs/${blogId}`)
     return { success: data.success }
+  },
+
+  async likeBlog(blogId: string): Promise<LikeResponse> {
+    const { data } = await api.post(`/blogs/${blogId}/like`)
+    return {
+      success: data.success,
+      likes: data.likes,
+    }
   },
 }
