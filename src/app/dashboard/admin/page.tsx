@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Users, Shield, Ban, CheckCircle, Search, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Users, Shield, Ban, Search, Loader2, FileText, HelpCircle, BookOpen, Flag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,29 +17,31 @@ import {
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { getInitials, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
-
-interface AdminUser {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  role: 'user' | 'admin'
-  isVerified: boolean
-  isBlocked: boolean
-  createdAt: string
-}
-
-const mockUsers: AdminUser[] = [
-  { id: '1', name: 'John Doe', email: 'john@example.com', role: 'user', isVerified: true, isBlocked: false, createdAt: '2024-01-15' },
-  { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'admin', isVerified: true, isBlocked: false, createdAt: '2024-02-20' },
-  { id: '3', name: 'Bob Wilson', email: 'bob@example.com', role: 'user', isVerified: false, isBlocked: false, createdAt: '2024-03-10' },
-  { id: '4', name: 'Alice Brown', email: 'alice@example.com', role: 'user', isVerified: true, isBlocked: true, createdAt: '2024-03-25' },
-]
+import { adminService, AdminUser, AdminStats } from '@/services/admin.service'
 
 export default function AdminPage() {
-  const [users, setUsers] = useState<AdminUser[]>(mockUsers)
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [stats, setStats] = useState<AdminStats | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [usersData, statsData] = await Promise.all([
+          adminService.getUsers(),
+          adminService.getStats(),
+        ])
+        setUsers(usersData)
+        setStats(statsData)
+      } catch {
+        toast.error('Failed to load admin data')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const filteredUsers = users.filter(
     (user) =>
@@ -47,28 +49,33 @@ export default function AdminPage() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleRoleChange = (userId: string, role: 'user' | 'admin') => {
-    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)))
-    toast.success('Role updated successfully')
+  const handleRoleChange = async (userId: string, role: 'student' | 'admin') => {
+    try {
+      const { user } = await adminService.changeUserRole(userId, role)
+      setUsers((prev) => prev.map((u) => (u._id === userId ? user : u)))
+      toast.success('Role updated successfully')
+    } catch {
+      toast.error('Failed to update role')
+    }
   }
 
-  const handleVerify = (userId: string) => {
-    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, isVerified: true } : u)))
-    toast.success('User verified')
+  const handleToggleBan = async (userId: string) => {
+    try {
+      const { user } = await adminService.toggleBanUser(userId)
+      setUsers((prev) => prev.map((u) => (u._id === userId ? user : u)))
+      toast.success('User status updated')
+    } catch {
+      toast.error('Failed to update user status')
+    }
   }
 
-  const handleToggleBlock = (userId: string) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, isBlocked: !u.isBlocked } : u))
-    )
-    toast.success('User status updated')
-  }
-
-  const stats = [
-    { label: 'Total Users', value: users.length, icon: Users, color: 'from-violet-500 to-fuchsia-500' },
-    { label: 'Verified', value: users.filter((u) => u.isVerified).length, icon: CheckCircle, color: 'from-emerald-500 to-teal-500' },
-    { label: 'Admins', value: users.filter((u) => u.role === 'admin').length, icon: Shield, color: 'from-amber-500 to-orange-500' },
-    { label: 'Blocked', value: users.filter((u) => u.isBlocked).length, icon: Ban, color: 'from-red-500 to-pink-500' },
+  const statCards = [
+    { label: 'Total Users', value: stats?.users ?? 0, icon: Users, color: 'from-violet-500 to-fuchsia-500' },
+    { label: 'Notes', value: stats?.notes ?? 0, icon: FileText, color: 'from-blue-500 to-cyan-500' },
+    { label: 'Doubts', value: stats?.doubts ?? 0, icon: HelpCircle, color: 'from-amber-500 to-orange-500' },
+    { label: 'Blogs', value: stats?.blogs ?? 0, icon: BookOpen, color: 'from-emerald-500 to-teal-500' },
+    { label: 'Forums', value: stats?.forums ?? 0, icon: Shield, color: 'from-pink-500 to-rose-500' },
+    { label: 'Reports', value: stats?.reports ?? 0, icon: Flag, color: 'from-red-500 to-orange-500' },
   ]
 
   return (
@@ -79,14 +86,18 @@ export default function AdminPage() {
           <p className="text-slate-400 mt-1">Manage users and platform settings</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {statCards.map((stat) => (
             <Card key={stat.label} className="bg-[#1e1e2e] border-[#2a2a3e]">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                    <p className="text-xs text-slate-400">{stat.label}</p>
+                    {isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-violet-500 mt-1" />
+                    ) : (
+                      <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                    )}
                   </div>
                   <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                     <stat.icon className="h-5 w-5 text-white" />
@@ -117,11 +128,13 @@ export default function AdminPage() {
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
               </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">No users found</div>
             ) : (
               <div className="space-y-4">
                 {filteredUsers.map((user) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]"
                   >
                     <div className="flex items-center gap-3">
@@ -134,8 +147,8 @@ export default function AdminPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-white">{user.name}</p>
-                          {user.isBlocked && (
-                            <Badge variant="destructive" className="text-xs">Blocked</Badge>
+                          {user.isBanned && (
+                            <Badge variant="destructive" className="text-xs">Banned</Badge>
                           )}
                         </div>
                         <p className="text-sm text-slate-500">{user.email}</p>
@@ -147,36 +160,24 @@ export default function AdminPage() {
                         {user.isVerified ? 'Verified' : 'Unverified'}
                       </Badge>
 
-                      <Select value={user.role} onValueChange={(v) => handleRoleChange(user.id, v as 'user' | 'admin')}>
+                      <Select value={user.role} onValueChange={(v) => handleRoleChange(user._id, v as 'student' | 'admin')}>
                         <SelectTrigger className="w-[100px] h-8 bg-[#1e1e2e] border-[#2a2a3e] text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1e1e2e] border-[#2a2a3e]">
-                          <SelectItem value="user" className="text-white hover:bg-[#2a2a3e]">User</SelectItem>
+                          <SelectItem value="student" className="text-white hover:bg-[#2a2a3e]">Student</SelectItem>
                           <SelectItem value="admin" className="text-white hover:bg-[#2a2a3e]">Admin</SelectItem>
                         </SelectContent>
                       </Select>
 
-                      {!user.isVerified && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleVerify(user.id)}
-                          className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Verify
-                        </Button>
-                      )}
-
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleToggleBlock(user.id)}
-                        className={user.isBlocked ? 'border-emerald-500/30 text-emerald-400' : 'border-red-500/30 text-red-400'}
+                        onClick={() => handleToggleBan(user._id)}
+                        className={user.isBanned ? 'border-emerald-500/30 text-emerald-400' : 'border-red-500/30 text-red-400'}
                       >
                         <Ban className="h-4 w-4 mr-1" />
-                        {user.isBlocked ? 'Unblock' : 'Block'}
+                        {user.isBanned ? 'Unban' : 'Ban'}
                       </Button>
                     </div>
                   </div>

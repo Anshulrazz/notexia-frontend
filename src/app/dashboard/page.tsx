@@ -1,15 +1,10 @@
 'use client'
 
-import { FileText, HelpCircle, Users, BookOpen, TrendingUp, Clock } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { FileText, HelpCircle, Users, BookOpen, TrendingUp, Clock, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/store/auth.store'
-
-const stats = [
-  { label: 'Notes Shared', value: '24', icon: FileText, color: 'from-violet-500 to-fuchsia-500' },
-  { label: 'Doubts Asked', value: '12', icon: HelpCircle, color: 'from-blue-500 to-cyan-500' },
-  { label: 'Forums Joined', value: '5', icon: Users, color: 'from-amber-500 to-orange-500' },
-  { label: 'Blogs Written', value: '8', icon: BookOpen, color: 'from-emerald-500 to-teal-500' },
-]
+import { adminService, AdminStats } from '@/services/admin.service'
 
 const recentActivity = [
   { type: 'note', title: 'Data Structures Notes', time: '2 hours ago' },
@@ -20,6 +15,29 @@ const recentActivity = [
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await adminService.getStats()
+        setStats(data)
+      } catch {
+        setStats({ users: 0, notes: 0, doubts: 0, blogs: 0, forums: 0, reports: 0 })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
+
+  const statCards = [
+    { label: 'Notes Shared', value: stats?.notes ?? 0, icon: FileText, color: 'from-violet-500 to-fuchsia-500' },
+    { label: 'Doubts Asked', value: stats?.doubts ?? 0, icon: HelpCircle, color: 'from-blue-500 to-cyan-500' },
+    { label: 'Forums', value: stats?.forums ?? 0, icon: Users, color: 'from-amber-500 to-orange-500' },
+    { label: 'Blogs Written', value: stats?.blogs ?? 0, icon: BookOpen, color: 'from-emerald-500 to-teal-500' },
+  ]
 
   return (
     <div className="space-y-8">
@@ -31,13 +49,17 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <Card key={stat.label} className="bg-[#1e1e2e] border-[#2a2a3e]">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-400">{stat.label}</p>
-                  <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                  {isLoading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-violet-500 mt-2" />
+                  ) : (
+                    <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                  )}
                 </div>
                 <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                   <stat.icon className="h-6 w-6 text-white" />
