@@ -149,16 +149,16 @@ export default function ForumsPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {forums.map((forum) => (
             <Card key={forum._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-amber-500/50 transition-colors">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                    <span className="text-white font-bold">{forum.name[0]}</span>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                      <span className="text-white font-bold">{typeof forum.name === 'object' && forum.name !== null ? (forum.name as { name?: string }).name?.[0] || 'F' : forum.name?.[0] || 'F'}</span>
+                    </div>
+                    <ReportButton contentType="forum" contentId={forum._id} />
                   </div>
-                  <ReportButton contentType="forum" contentId={forum._id} />
-                </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2">{forum.name}</h3>
-                <p className="text-sm text-slate-400 mb-4 line-clamp-2">{forum.description || 'No description'}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{typeof forum.name === 'object' && forum.name !== null ? (forum.name as { name?: string }).name || 'Unnamed' : forum.name}</h3>
+                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{typeof forum.description === 'object' && forum.description !== null ? (forum.description as { name?: string }).name || 'No description' : forum.description || 'No description'}</p>
 
                 <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
                   <span className="flex items-center gap-1">
