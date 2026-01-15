@@ -28,7 +28,7 @@ interface CreateBlogPayload {
 export const blogService = {
   async getBlogs(params?: { tag?: string; search?: string }): Promise<Blog[]> {
     const { data } = await api.get('/api/blogs', { params })
-    return data
+    return Array.isArray(data) ? data : data?.blogs || data?.data || []
   },
 
   async getBlog(blogId: string): Promise<Blog> {

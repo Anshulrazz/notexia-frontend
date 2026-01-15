@@ -42,7 +42,7 @@ interface CreateNotePayload {
 export const noteService = {
   async getNotes(params?: { subject?: string; search?: string }): Promise<Note[]> {
     const { data } = await api.get('/api/notes', { params })
-    return data
+    return Array.isArray(data) ? data : data?.notes || data?.data || []
   },
 
   async createNote(payload: CreateNotePayload): Promise<Note> {
@@ -53,7 +53,11 @@ export const noteService = {
     formData.append('tags', JSON.stringify(payload.tags))
     formData.append('file', payload.file)
 
-    const { data } = await api.post('/api/notes', formData)
+    const { data } = await api.post('/api/notes', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
     return data
   },
 

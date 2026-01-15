@@ -39,7 +39,7 @@ interface CreateDoubtPayload {
 export const doubtService = {
   async getDoubts(params?: { subject?: string; search?: string; solved?: boolean }): Promise<Doubt[]> {
     const { data } = await api.get('/api/doubts', { params })
-    return data
+    return Array.isArray(data) ? data : data?.doubts || data?.data || []
   },
 
   async createDoubt(payload: CreateDoubtPayload): Promise<Doubt> {

@@ -39,7 +39,7 @@ interface CreateThreadPayload {
 export const forumService = {
   async getForums(params?: { category?: string; search?: string }): Promise<Forum[]> {
     const { data } = await api.get('/api/forums', { params })
-    return data
+    return Array.isArray(data) ? data : data?.forums || data?.data || []
   },
 
   async createForum(payload: CreateForumPayload): Promise<Forum> {
