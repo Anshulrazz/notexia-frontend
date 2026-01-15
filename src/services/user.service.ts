@@ -56,9 +56,13 @@ export const userService = {
         'Content-Type': undefined,
       },
     })
+    let avatar = data.avatar
+    if (avatar && !avatar.startsWith('/') && !avatar.startsWith('http')) {
+      avatar = `/uploads/avatars/${avatar}`
+    }
     return {
       success: data.success,
-      avatar: data.avatar,
+      avatar,
     }
   },
 }
