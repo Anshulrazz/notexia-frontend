@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -26,7 +25,7 @@ import { reportService } from '@/services/report.service'
 import { toast } from 'sonner'
 
 interface ReportButtonProps {
-  contentType: 'note' | 'doubt' | 'answer' | 'blog' | 'thread' | 'forum'
+  contentType: 'note' | 'doubt' | 'blog' | 'forum'
   contentId: string
   variant?: 'icon' | 'default'
 }
@@ -34,7 +33,6 @@ interface ReportButtonProps {
 export function ReportButton({ contentType, contentId, variant = 'icon' }: ReportButtonProps) {
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState('')
-  const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
@@ -46,15 +44,13 @@ export function ReportButton({ contentType, contentId, variant = 'icon' }: Repor
     setIsLoading(true)
     try {
       await reportService.createReport({
-        contentType,
-        contentId,
+        targetType: contentType,
+        targetId: contentId,
         reason,
-        description,
       })
       toast.success('Report submitted successfully')
       setOpen(false)
       setReason('')
-      setDescription('')
     } catch {
       toast.error('Failed to submit report')
     } finally {
@@ -107,16 +103,6 @@ export function ReportButton({ contentType, contentId, variant = 'icon' }: Repor
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-white">Additional Details (Optional)</Label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide more context about the issue..."
-              className="bg-[#12121a] border-[#2a2a3e] text-white placeholder:text-slate-500 min-h-[100px]"
-            />
           </div>
         </div>
 

@@ -1,58 +1,48 @@
 import api from './api'
 
-export interface Thread {
-  id: string
-  title: string
-  content: string
-  author: {
-    id: string
-    name: string
-    avatar?: string
-  }
-  replies: number
-  createdAt: string
-}
-
 export interface Forum {
-  id: string
+  _id: string
+  id?: string
   name: string
   description: string
-  category: string
-  membersCount: number
-  threadsCount: number
-  isJoined: boolean
-  threads: Thread[]
+  category?: string
+  members: number
+  author?: {
+    _id?: string
+    id?: string
+    name: string
+  }
   createdAt: string
 }
 
 interface CreateForumPayload {
   name: string
   description: string
-  category: string
 }
 
-interface CreateThreadPayload {
-  title: string
-  content: string
+interface ForumResponse {
+  success: boolean
+  forum: Forum
 }
 
 export const forumService = {
   async getForums(params?: { category?: string; search?: string }): Promise<Forum[]> {
     const { data } = await api.get('/api/forums', { params })
-    return Array.isArray(data) ? data : data?.forums || data?.data || []
+    if (Array.isArray(data)) return data
+    if (data.forums) return data.forums
+    if (data.data) return data.data
+    return []
   },
 
-  async createForum(payload: CreateForumPayload): Promise<Forum> {
+  async createForum(payload: CreateForumPayload): Promise<ForumResponse> {
     const { data } = await api.post('/api/forums', payload)
-    return data
+    return {
+      success: data.success,
+      forum: data.forum,
+    }
   },
 
   async joinForum(forumId: string): Promise<void> {
     await api.post(`/api/forums/${forumId}/join`)
-  },
-
-  async createThread(forumId: string, payload: CreateThreadPayload): Promise<Thread> {
-    const { data } = await api.post(`/api/forums/${forumId}/thread`, payload)
-    return data
   },
 }

@@ -16,13 +16,20 @@ export default function ProfilePage() {
   const { user, setUser } = useAuthStore()
   const [name, setName] = useState(user?.name || '')
   const [college, setCollege] = useState(user?.college || '')
+  const [branch, setBranch] = useState(user?.branch || '')
+  const [year, setYear] = useState(user?.year?.toString() || '')
   const [isLoading, setIsLoading] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      const updatedUser = await userService.updateMe({ name, college })
+      const updatedUser = await userService.updateMe({ 
+        name, 
+        college,
+        branch,
+        year: year ? parseInt(year) : undefined,
+      })
       setUser(updatedUser)
       toast.success('Profile updated successfully')
     } catch {
@@ -38,14 +45,23 @@ export default function ProfilePage() {
 
     setIsUploadingAvatar(true)
     try {
-      const updatedUser = await userService.updateAvatar(file)
-      setUser(updatedUser)
+      const response = await userService.updateAvatar(file)
+      if (user) {
+        setUser({ ...user, avatar: response.avatar })
+      }
       toast.success('Avatar updated successfully')
     } catch {
       toast.error('Failed to upload avatar')
     } finally {
       setIsUploadingAvatar(false)
     }
+  }
+
+  const getAvatarUrl = (avatar?: string) => {
+    if (!avatar) return undefined
+    if (avatar.startsWith('http')) return avatar
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
+    return `${baseUrl}${avatar}`
   }
 
   return (
@@ -62,7 +78,7 @@ export default function ProfilePage() {
         <CardContent className="flex items-center gap-6">
           <div className="relative">
             <Avatar className="h-24 w-24 ring-4 ring-violet-500/30">
-              <AvatarImage src={user?.avatar} alt={user?.name} />
+              <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
               <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-2xl">
                 {getInitials(user?.name || 'U')}
               </AvatarFallback>
@@ -123,6 +139,30 @@ export default function ProfilePage() {
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-white">Branch</Label>
+              <Input
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                placeholder="e.g. CSE, ECE"
+                className="bg-[#12121a] border-[#2a2a3e] text-white placeholder:text-slate-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white">Year</Label>
+              <Input
+                type="number"
+                min="1"
+                max="6"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholder="e.g. 1, 2, 3, 4"
+                className="bg-[#12121a] border-[#2a2a3e] text-white placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+
           <Button
             onClick={handleSave}
             disabled={isLoading}
@@ -158,7 +198,7 @@ export default function ProfilePage() {
                 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' 
                 : 'bg-violet-500/10 text-violet-400 border border-violet-500/30'
             }`}>
-              {user?.role === 'admin' ? 'Admin' : 'User'}
+              {user?.role === 'admin' ? 'Admin' : 'Student'}
             </span>
           </div>
 
