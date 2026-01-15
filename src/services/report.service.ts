@@ -40,10 +40,21 @@ export const reportService = {
 
   async getReports(): Promise<Report[]> {
     const { data } = await api.get('/reports')
-    if (Array.isArray(data)) return data
-    if (data.reports) return data.reports
-    if (data.data) return data.data
-    return []
+    let reports: Report[] = []
+    if (Array.isArray(data)) reports = data
+    else if (data.reports) reports = data.reports
+    else if (data.data) reports = data.data
+    return reports.map(r => ({
+      ...r,
+      id: r.id || r._id,
+      contentType: r.contentType || r.targetType,
+      contentId: r.contentId || r.targetId,
+      reporter: {
+        ...r.reporter,
+        id: r.reporter?.id || r.reporter?._id,
+        name: r.reporter?.name || 'Unknown'
+      }
+    }))
   },
 
   async updateReportStatus(reportId: string, status: Report['status']): Promise<Report> {
