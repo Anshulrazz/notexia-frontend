@@ -62,6 +62,11 @@ export const doubtService = {
     return []
   },
 
+  async getDoubt(doubtId: string): Promise<Doubt> {
+    const { data } = await api.get(`/api/doubts/${doubtId}`)
+    return data.doubt || data
+  },
+
   async createDoubt(payload: CreateDoubtPayload): Promise<DoubtResponse> {
     const { data } = await api.post('/api/doubts', payload)
     return {

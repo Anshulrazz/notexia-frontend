@@ -48,6 +48,11 @@ export const noteService = {
     return []
   },
 
+  async getNote(noteId: string): Promise<Note> {
+    const { data } = await api.get(`/api/notes/${noteId}`)
+    return data.note || data
+  },
+
   async createNote(payload: CreateNotePayload): Promise<NoteResponse> {
     const formData = new FormData()
     formData.append('note', payload.file)

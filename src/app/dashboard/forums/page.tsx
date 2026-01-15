@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Plus, Search, Users, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -77,14 +78,18 @@ export default function ForumsPage() {
     }
   }
 
-  const renderValue = (val: any, fallback: string = '') => {
+  const renderValue = (val: unknown, fallback: string = ''): string => {
     if (val === null || val === undefined) return fallback
     if (typeof val === 'string' || typeof val === 'number') return String(val)
     if (typeof val === 'object') {
       if (Array.isArray(val)) return String(val.length)
-      if (val.name && typeof val.name === 'string') return val.name
-      if (val.name && typeof val.name === 'object' && val.name.name) return String(val.name.name)
-      if (val.title && typeof val.title === 'string') return val.title
+      const obj = val as Record<string, unknown>
+      if (obj.name && typeof obj.name === 'string') return obj.name
+      if (obj.name && typeof obj.name === 'object') {
+        const nested = obj.name as Record<string, unknown>
+        if (nested.name) return String(nested.name)
+      }
+      if (obj.title && typeof obj.title === 'string') return obj.title
       return fallback
     }
     return fallback
@@ -171,7 +176,9 @@ export default function ForumsPage() {
                     <ReportButton contentType="forum" contentId={forum._id} />
                   </div>
 
-                  <h3 className="text-lg font-semibold text-white mb-2">{renderValue(forum.name, 'Unnamed')}</h3>
+                  <Link href={`/dashboard/forums/${forum._id}`}>
+                      <h3 className="text-lg font-semibold text-white mb-2 hover:text-amber-400 transition-colors">{renderValue(forum.name, 'Unnamed')}</h3>
+                    </Link>
                   <p className="text-sm text-slate-400 mb-4 line-clamp-2">{renderValue(forum.description, 'No description')}</p>
 
                 <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">

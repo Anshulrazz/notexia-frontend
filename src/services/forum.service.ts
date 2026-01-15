@@ -34,6 +34,11 @@ export const forumService = {
     return []
   },
 
+  async getForum(forumId: string): Promise<Forum> {
+    const { data } = await api.get(`/api/forums/${forumId}`)
+    return data.forum || data
+  },
+
   async createForum(payload: CreateForumPayload): Promise<ForumResponse> {
     const { data } = await api.post('/api/forums', payload)
     return {

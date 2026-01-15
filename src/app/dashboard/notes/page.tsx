@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Plus, Search, Download, Heart, Filter, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -227,16 +228,18 @@ export default function NotesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {notes.map((note) => (
-            <Card key={note._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
-              <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
-                      {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
-                    </Badge>
-                    <ReportButton contentType="note" contentId={note._id} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{note.title}</h3>
-                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
+<Card key={note._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
+                <CardContent className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
+                        {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
+                      </Badge>
+                      <ReportButton contentType="note" contentId={note._id} />
+                    </div>
+                    <Link href={`/dashboard/notes/${note._id}`}>
+                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1 hover:text-violet-400 transition-colors">{note.title}</h3>
+                    </Link>
+                    <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
                   <div className="flex flex-wrap gap-1 mb-4">
                     {(Array.isArray(note.tags) ? note.tags : []).slice(0, 3).map((tag) => {
                       const tagName = typeof tag === 'object' && tag !== null ? (tag as { name?: string }).name || '' : tag
