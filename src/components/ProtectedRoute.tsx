@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-  const { isLoading, isAuthenticated, isAdmin, isVerified } = useAuth()
+  const { isLoading, isAuthenticated, isAdmin } = useAuth()
 
   if (isLoading) {
     return (
@@ -22,32 +22,6 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
   if (!isAuthenticated) {
     return null
-  }
-
-  if (!isVerified) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center bg-[#0a0a0f] text-center px-4">
-        <div className="rounded-full bg-amber-500/10 p-4 mb-4">
-          <svg
-            className="h-12 w-12 text-amber-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Account Not Verified</h1>
-        <p className="text-slate-400 max-w-md">
-          Your account is pending verification. Please check your email or contact support.
-        </p>
-      </div>
-    )
   }
 
   if (requireAdmin && !isAdmin) {
