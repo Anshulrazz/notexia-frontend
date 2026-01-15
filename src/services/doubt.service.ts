@@ -1,62 +1,92 @@
 import api from './api'
 
 export interface Answer {
-  id: string
-  content: string
+  _id: string
+  id?: string
+  text: string
   author: {
-    id: string
+    _id?: string
+    id?: string
     name: string
     avatar?: string
   }
-  upvotes: number
-  isAccepted: boolean
+  upvotes: string[]
   createdAt: string
 }
 
 export interface Doubt {
-  id: string
-  title: string
+  _id: string
+  id?: string
+  question: string
   description: string
-  subject: string
+  subject?: string
   author: {
-    id: string
+    _id?: string
+    id?: string
     name: string
     avatar?: string
   }
   answers: Answer[]
-  tags: string[]
-  isSolved: boolean
+  tags: string
+  acceptedAnswer?: string
   createdAt: string
 }
 
 interface CreateDoubtPayload {
-  title: string
+  question: string
   description: string
-  subject: string
-  tags: string[]
+  tags: string
+}
+
+interface DoubtResponse {
+  success: boolean
+  doubt: Doubt
+}
+
+interface AnswerResponse {
+  success: boolean
+  answers: Answer[]
+}
+
+interface AcceptResponse {
+  success: boolean
+  acceptedAnswer: string
 }
 
 export const doubtService = {
   async getDoubts(params?: { subject?: string; search?: string; solved?: boolean }): Promise<Doubt[]> {
     const { data } = await api.get('/api/doubts', { params })
-    return data
+    if (Array.isArray(data)) return data
+    if (data.doubts) return data.doubts
+    if (data.data) return data.data
+    return []
   },
 
-  async createDoubt(payload: CreateDoubtPayload): Promise<Doubt> {
+  async createDoubt(payload: CreateDoubtPayload): Promise<DoubtResponse> {
     const { data } = await api.post('/api/doubts', payload)
-    return data
+    return {
+      success: data.success,
+      doubt: data.doubt,
+    }
   },
 
-  async addAnswer(doubtId: string, content: string): Promise<Answer> {
-    const { data } = await api.post(`/api/doubts/${doubtId}/answer`, { content })
-    return data
+  async addAnswer(doubtId: string, text: string): Promise<AnswerResponse> {
+    const { data } = await api.post(`/api/doubts/${doubtId}/answer`, { text })
+    return {
+      success: data.success,
+      answers: data.answers,
+    }
   },
 
   async upvoteAnswer(doubtId: string, answerId: string): Promise<void> {
     await api.post(`/api/doubts/${doubtId}/answer/${answerId}/upvote`)
   },
 
-  async acceptAnswer(doubtId: string, answerId: string): Promise<void> {
-    await api.post(`/api/doubts/${doubtId}/accept/${answerId}`)
+  async acceptAnswer(doubtId: string, answerId: string): Promise<AcceptResponse> {
+    const { data } = await api.post(`/api/doubts/${doubtId}/accept/${answerId}`)
+    return {
+      success: data.success,
+      acceptedAnswer: data.acceptedAnswer,
+    }
   },
 }

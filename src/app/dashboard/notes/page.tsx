@@ -22,12 +22,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { FileUpload } from '@/components/FileUpload'
 import { ReportButton } from '@/components/ReportButton'
 import { noteService, Note } from '@/services/note.service'
 import { SUBJECTS } from '@/utils/constants'
-import { formatRelativeTime, getInitials } from '@/utils/helpers'
+import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
 export default function NotesPage() {
@@ -40,7 +39,6 @@ export default function NotesPage() {
 
   const [newNote, setNewNote] = useState({
     title: '',
-    description: '',
     subject: '',
     tags: '',
     file: null as File | null,
@@ -59,38 +57,7 @@ export default function NotesPage() {
       const data = await noteService.getNotes(params)
       setNotes(data)
     } catch {
-      setNotes([
-        {
-          id: '1',
-          title: 'Data Structures & Algorithms',
-          description: 'Complete notes on DSA including arrays, linked lists, trees, and graphs.',
-          subject: 'Computer Science',
-          fileUrl: '#',
-          fileName: 'dsa-notes.pdf',
-          fileType: 'pdf',
-          author: { id: '1', name: 'John Doe', avatar: '' },
-          likes: 45,
-          downloads: 120,
-          comments: [],
-          tags: ['DSA', 'Algorithms', 'Data Structures'],
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          title: 'Linear Algebra Essentials',
-          description: 'Comprehensive guide to linear algebra concepts and applications.',
-          subject: 'Mathematics',
-          fileUrl: '#',
-          fileName: 'linear-algebra.pdf',
-          fileType: 'pdf',
-          author: { id: '2', name: 'Jane Smith', avatar: '' },
-          likes: 32,
-          downloads: 85,
-          comments: [],
-          tags: ['Math', 'Linear Algebra', 'Matrices'],
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-        },
-      ])
+      setNotes([])
     } finally {
       setIsLoading(false)
     }
@@ -106,14 +73,13 @@ export default function NotesPage() {
     try {
       await noteService.createNote({
         title: newNote.title,
-        description: newNote.description,
         subject: newNote.subject,
         tags: newNote.tags.split(',').map((t) => t.trim()).filter(Boolean),
         file: newNote.file,
       })
       toast.success('Note uploaded successfully')
       setIsCreateOpen(false)
-      setNewNote({ title: '', description: '', subject: '', tags: '', file: null })
+      setNewNote({ title: '', subject: '', tags: '', file: null })
       loadNotes()
     } catch {
       toast.error('Failed to upload note')
@@ -124,18 +90,21 @@ export default function NotesPage() {
 
   const handleLike = async (noteId: string) => {
     try {
-      await noteService.likeNote(noteId)
+      const response = await noteService.likeNote(noteId)
       setNotes((prev) =>
-        prev.map((n) => (n.id === noteId ? { ...n, likes: n.likes + 1 } : n))
+        prev.map((n) => (n._id === noteId ? { ...n, likes: [...n.likes, 'user'] } : n))
       )
+      toast.success(`Liked! Total: ${response.likes}`)
     } catch {
       toast.error('Failed to like note')
     }
   }
 
-  const handleDownload = async (noteId: string) => {
+  const handleDownload = async (note: Note) => {
     try {
-      await noteService.downloadNote(noteId)
+      await noteService.downloadNote(note._id)
+      const url = getFileUrl(note.file.path)
+      if (url) window.open(url, '_blank')
       toast.success('Download started')
     } catch {
       toast.error('Failed to download')
@@ -184,15 +153,6 @@ export default function NotesPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={newNote.description}
-                  onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
-                  placeholder="Describe your notes"
-                  className="bg-[#12121a] border-[#2a2a3e] text-white min-h-[80px]"
-                />
               </div>
               <div className="space-y-2">
                 <Label>Tags (comma separated)</Label>
@@ -267,33 +227,36 @@ export default function NotesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {notes.map((note) => (
-            <Card key={note.id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
+            <Card key={note._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
               <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
-                    {note.subject}
-                  </Badge>
-                  <ReportButton contentType="note" contentId={note.id} />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{note.title}</h3>
-                <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description}</p>
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {note.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
-                      {tag}
+                  <div className="flex items-start justify-between mb-3">
+                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
+                      {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
                     </Badge>
-                  ))}
+                    <ReportButton contentType="note" contentId={note._id} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{note.title}</h3>
+                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {(Array.isArray(note.tags) ? note.tags : []).slice(0, 3).map((tag) => {
+                      const tagName = typeof tag === 'object' && tag !== null ? (tag as { name?: string }).name || '' : tag
+                      return (
+                        <Badge key={tagName} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
+                          {tagName}
+                        </Badge>
+                      )
+                    })}
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-7 w-7">
-                      <AvatarImage src={note.author.avatar} />
+                      <AvatarImage src={getAvatarUrl(note.author?.avatar)} />
                       <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
-                        {getInitials(note.author.name)}
+                        {getInitials(note.author?.name || 'U')}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xs font-medium text-white">{note.author.name}</p>
+                      <p className="text-xs font-medium text-white">{note.author?.name || 'Unknown'}</p>
                       <p className="text-xs text-slate-500">{formatRelativeTime(note.createdAt)}</p>
                     </div>
                   </div>
@@ -302,16 +265,16 @@ export default function NotesPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
-                      onClick={() => handleLike(note.id)}
+                      onClick={() => handleLike(note._id)}
                     >
                       <Heart className="h-4 w-4" />
                     </Button>
-                    <span className="text-xs text-slate-500">{note.likes}</span>
+                    <span className="text-xs text-slate-500">{note.likes?.length || 0}</span>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10"
-                      onClick={() => handleDownload(note.id)}
+                      onClick={() => handleDownload(note)}
                     >
                       <Download className="h-4 w-4" />
                     </Button>

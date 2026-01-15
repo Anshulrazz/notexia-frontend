@@ -1,13 +1,14 @@
 import api from './api'
 
 export interface Report {
-  id: string
-  contentType: 'note' | 'doubt' | 'answer' | 'blog' | 'thread' | 'forum'
-  contentId: string
+  _id: string
+  id?: string
+  targetType: 'note' | 'doubt' | 'blog' | 'forum'
+  targetId: string
   reason: string
-  description: string
   reporter: {
-    id: string
+    _id?: string
+    id?: string
     name: string
   }
   status: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
@@ -15,25 +16,35 @@ export interface Report {
 }
 
 interface CreateReportPayload {
-  contentType: 'note' | 'doubt' | 'answer' | 'blog' | 'thread' | 'forum'
-  contentId: string
+  targetType: 'note' | 'doubt' | 'blog' | 'forum'
+  targetId: string
   reason: string
-  description: string
+}
+
+interface ReportResponse {
+  success: boolean
+  report: Report
 }
 
 export const reportService = {
-  async createReport(payload: CreateReportPayload): Promise<Report> {
+  async createReport(payload: CreateReportPayload): Promise<ReportResponse> {
     const { data } = await api.post('/api/reports', payload)
-    return data
+    return {
+      success: data.success,
+      report: data.report,
+    }
   },
 
   async getReports(): Promise<Report[]> {
     const { data } = await api.get('/api/reports')
-    return data
+    if (Array.isArray(data)) return data
+    if (data.reports) return data.reports
+    if (data.data) return data.data
+    return []
   },
 
   async updateReportStatus(reportId: string, status: Report['status']): Promise<Report> {
     const { data } = await api.put(`/api/reports/${reportId}/status`, { status })
-    return data
+    return data.report || data
   },
 }

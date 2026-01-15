@@ -3,13 +3,16 @@ import { persist } from 'zustand/middleware'
 
 export interface User {
   id: string
+  _id?: string
   email: string
   name: string
   avatar?: string
-  role: 'user' | 'admin'
+  role: 'student' | 'admin'
   college?: string
+  branch?: string
+  year?: number
   isVerified: boolean
-  createdAt: string
+  createdAt?: string
 }
 
 interface AuthState {
