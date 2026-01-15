@@ -58,7 +58,7 @@ export const reportService = {
   },
 
   async updateReportStatus(reportId: string, status: Report['status']): Promise<Report> {
-    const { data } = await api.patch(`/reports/${reportId}/status`, { status })
+    const { data } = await api.put(`/reports/${reportId}/status`, { status })
     return data.report || data
   },
 }
