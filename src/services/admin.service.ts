@@ -12,12 +12,12 @@ export interface AdminUser {
 }
 
 export interface AdminStats {
-  totalUsers: number
-  totalNotes: number
-  totalDoubts: number
-  totalBlogs: number
-  totalForums: number
-  totalReports: number
+  users: number
+  notes: number
+  doubts: number
+  blogs: number
+  forums: number
+  reports: number
 }
 
 interface UserResponse {

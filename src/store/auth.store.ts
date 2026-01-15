@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
 
 export interface User {
   id: string
@@ -26,6 +26,23 @@ interface AuthState {
   setLoading: (loading: boolean) => void
 }
 
+const cookieStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    if (typeof document === 'undefined') return null
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+    return match ? decodeURIComponent(match[2]) : null
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof document === 'undefined') return
+    const maxAge = 7 * 24 * 60 * 60
+    document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=${maxAge};SameSite=Lax`
+  },
+  removeItem: (name: string): void => {
+    if (typeof document === 'undefined') return
+    document.cookie = `${name}=;path=/;max-age=0`
+  },
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -40,6 +57,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'notexia-auth',
+      storage: createJSONStorage(() => cookieStorage),
       partialize: (state) => ({ token: state.token, user: state.user }),
       onRehydrateStorage: () => (state) => {
         state?.setLoading(false)
