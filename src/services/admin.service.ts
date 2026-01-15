@@ -65,6 +65,7 @@ export const adminService = {
     return {
       success: data.success,
       message: data.message,
+      user: data.user,
     }
   },
 }

@@ -45,8 +45,8 @@ export default function AdminPage() {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (user.email?.toLowerCase() || '').includes(searchQuery.toLowerCase())
   )
 
   const handleRoleChange = async (userId: string, role: 'student' | 'admin') => {
@@ -62,7 +62,11 @@ export default function AdminPage() {
   const handleToggleBan = async (userId: string) => {
     try {
       const { user } = await adminService.toggleBanUser(userId)
-      setUsers((prev) => prev.map((u) => (u._id === userId ? user : u)))
+      if (user) {
+        setUsers((prev) => prev.map((u) => (u._id === userId ? user : u)))
+      } else {
+        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, isBanned: !u.isBanned } : u)))
+      }
       toast.success('User status updated')
     } catch {
       toast.error('Failed to update user status')
@@ -138,15 +142,15 @@ export default function AdminPage() {
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]"
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={getAvatarUrl(user.avatar)} />
-                        <AvatarFallback className="bg-violet-500/20 text-violet-400">
-                          {getInitials(user.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-white">{user.name}</p>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={getAvatarUrl(user.avatar)} />
+                          <AvatarFallback className="bg-violet-500/20 text-violet-400">
+                            {getInitials(user.name || user.email)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-white">{user.name || 'Unknown'}</p>
                           {user.isBanned && (
                             <Badge variant="destructive" className="text-xs">Banned</Badge>
                           )}
