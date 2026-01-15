@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { FileText, HelpCircle, Users, BookOpen, ArrowRight, Sparkles, Zap, Star, Rocket, Brain, Target, Trophy, ChevronDown, Play, CheckCircle2, Globe, Shield, Clock } from 'lucide-react'
+import { FileText, HelpCircle, Users, BookOpen, ArrowRight, Sparkles, Zap, Star, Rocket, Brain, Target, Trophy, ChevronDown, Play, CheckCircle2, Globe, Shield, Clock, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
+import { useAuthStore } from '@/store/auth.store'
+import { authService } from '@/services/auth.service'
 
 const features = [
   {
@@ -114,6 +116,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: string; suffix?: str
 export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isVisible, setIsVisible] = useState(false)
+  const { isAuthenticated, user, login } = useAuthStore()
 
   useEffect(() => {
     setIsVisible(true)
@@ -123,8 +126,20 @@ export default function HomePage() {
     }
     
     window.addEventListener('mousemove', handleMouseMove)
+
+    const checkAuth = async () => {
+      try {
+        const userData = await authService.getMe()
+        login(userData)
+      } catch {
+      }
+    }
+    if (!isAuthenticated) {
+      checkAuth()
+    }
+    
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+  }, [isAuthenticated, login])
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
@@ -193,15 +208,26 @@ export default function HomePage() {
               <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
             </Link>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-violet-500/20 hidden sm:flex">
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button asChild className="relative bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 animate-pulse-glow">
-                <Link href="/register">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Sign up Free
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <Button asChild className="relative bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 animate-pulse-glow">
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Go to Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-violet-500/20 hidden sm:flex">
+                    <Link href="/login">Log in</Link>
+                  </Button>
+                  <Button asChild className="relative bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 animate-pulse-glow">
+                    <Link href="/register">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Sign up Free
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -241,19 +267,31 @@ export default function HomePage() {
             </p>
 
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 hover:from-violet-600 hover:via-fuchsia-600 hover:to-pink-600 text-white text-lg h-14 px-10 font-bold animate-pulse-glow hover-lift">
-                <Link href="/register">
-                  <Rocket className="mr-2 h-5 w-5" />
-                  Start Learning Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-violet-500/50 text-white hover:bg-violet-500/20 text-lg h-14 px-10 font-semibold glass hover-lift">
-                <Link href="/login">
-                  <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 hover:from-violet-600 hover:via-fuchsia-600 hover:to-pink-600 text-white text-lg h-14 px-10 font-bold animate-pulse-glow hover-lift">
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-5 w-5" />
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 hover:from-violet-600 hover:via-fuchsia-600 hover:to-pink-600 text-white text-lg h-14 px-10 font-bold animate-pulse-glow hover-lift">
+                    <Link href="/register">
+                      <Rocket className="mr-2 h-5 w-5" />
+                      Start Learning Free
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-violet-500/50 text-white hover:bg-violet-500/20 text-lg h-14 px-10 font-semibold glass hover-lift">
+                    <Link href="/login">
+                      <Play className="mr-2 h-5 w-5" />
+                      Watch Demo
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
@@ -405,21 +443,33 @@ export default function HomePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#0a0a0f] text-xl h-16 px-12 font-bold hover-lift shadow-2xl shadow-violet-500/30">
-                <Link href="/register">
-                  <Sparkles className="mr-2 h-6 w-6" />
-                  Create Free Account
-                  <ArrowRight className="ml-2 h-6 w-6" />
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <Button asChild size="lg" className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#0a0a0f] text-xl h-16 px-12 font-bold hover-lift shadow-2xl shadow-violet-500/30">
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-6 w-6" />
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-6 w-6" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild size="lg" className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#0a0a0f] text-xl h-16 px-12 font-bold hover-lift shadow-2xl shadow-violet-500/30">
+                  <Link href="/register">
+                    <Sparkles className="mr-2 h-6 w-6" />
+                    Create Free Account
+                    <ArrowRight className="ml-2 h-6 w-6" />
+                  </Link>
+                </Button>
+              )}
             </div>
 
-            <p className="mt-8 text-slate-400">
-              Already have an account?{' '}
-              <Link href="/login" className="text-violet-400 font-semibold hover:text-fuchsia-400 transition-colors">
-                Sign in here
-              </Link>
-            </p>
+            {!isAuthenticated && (
+              <p className="mt-8 text-slate-400">
+                Already have an account?{' '}
+                <Link href="/login" className="text-violet-400 font-semibold hover:text-fuchsia-400 transition-colors">
+                  Sign in here
+                </Link>
+              </p>
+            )}
 
             <div className="mt-12 flex items-center justify-center gap-8 text-sm text-slate-500">
               <div className="flex items-center gap-2">
@@ -449,8 +499,14 @@ export default function HomePage() {
               <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <Link href="/register" className="hover:text-violet-400 transition-colors">Get Started</Link>
-              <Link href="/login" className="hover:text-violet-400 transition-colors">Sign In</Link>
+              {isAuthenticated ? (
+                <Link href="/dashboard" className="hover:text-violet-400 transition-colors">Dashboard</Link>
+              ) : (
+                <>
+                  <Link href="/register" className="hover:text-violet-400 transition-colors">Get Started</Link>
+                  <Link href="/login" className="hover:text-violet-400 transition-colors">Sign In</Link>
+                </>
+              )}
             </div>
             <p className="text-sm text-slate-500">
               © 2024 Notexia. Built for students, by students.
