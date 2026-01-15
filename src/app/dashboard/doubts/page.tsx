@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Plus, Search, ThumbsUp, Check, Sparkles, Loader2, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -264,7 +265,9 @@ export default function DoubtsPage() {
                   <ReportButton contentType="doubt" contentId={doubt._id} />
                 </div>
 
-                <h3 className="text-lg font-semibold text-white mb-2">{doubt.question}</h3>
+                <Link href={`/dashboard/doubts/${doubt._id}`}>
+                    <h3 className="text-lg font-semibold text-white mb-2 hover:text-violet-400 transition-colors">{doubt.question}</h3>
+                  </Link>
                 <p className="text-sm text-slate-400 mb-4">{doubt.description}</p>
 
                 <div className="flex flex-wrap gap-1 mb-4">

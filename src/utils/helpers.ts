@@ -56,14 +56,17 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+
 export function getAvatarUrl(avatar?: string): string | undefined {
   if (!avatar) return undefined
   if (avatar.startsWith('http')) return avatar
-  return `http://localhost:5500${avatar}`
+  if (avatar.startsWith('/')) return `http://localhost:5001${avatar}`
+  return `http://localhost:5001/uploads/avatars/${avatar}`
 }
 
 export function getFileUrl(path?: string): string | undefined {
   if (!path) return undefined
   if (path.startsWith('http')) return path
-  return `http://localhost:5500${path}`
+  return `http://localhost:5001${path}`
 }

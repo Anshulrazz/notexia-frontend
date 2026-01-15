@@ -3,9 +3,12 @@ import api from './api'
 export interface Report {
   _id: string
   id?: string
-  targetType: 'note' | 'doubt' | 'blog' | 'forum'
-  targetId: string
+  targetType?: 'note' | 'doubt' | 'blog' | 'forum'
+  contentType?: 'note' | 'doubt' | 'blog' | 'forum'
+  targetId?: string
+  contentId?: string
   reason: string
+  description?: string
   reporter: {
     _id?: string
     id?: string
@@ -28,7 +31,7 @@ interface ReportResponse {
 
 export const reportService = {
   async createReport(payload: CreateReportPayload): Promise<ReportResponse> {
-    const { data } = await api.post('/api/reports', payload)
+    const { data } = await api.post('/reports', payload)
     return {
       success: data.success,
       report: data.report,
@@ -36,7 +39,7 @@ export const reportService = {
   },
 
   async getReports(): Promise<Report[]> {
-    const { data } = await api.get('/api/reports')
+    const { data } = await api.get('/reports')
     if (Array.isArray(data)) return data
     if (data.reports) return data.reports
     if (data.data) return data.data
@@ -44,7 +47,7 @@ export const reportService = {
   },
 
   async updateReportStatus(reportId: string, status: Report['status']): Promise<Report> {
-    const { data } = await api.put(`/api/reports/${reportId}/status`, { status })
+    const { data } = await api.put(`/reports/${reportId}/status`, { status })
     return data.report || data
   },
 }

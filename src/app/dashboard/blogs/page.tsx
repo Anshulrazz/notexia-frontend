@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Plus, Search, Heart, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -196,7 +197,9 @@ export default function BlogsPage() {
                     <ReportButton contentType="blog" contentId={blog._id} />
                   </div>
 
-                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{blog.title}</h3>
+                  <Link href={`/dashboard/blogs/${blog._id}`}>
+                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-emerald-400 transition-colors">{blog.title}</h3>
+                    </Link>
                   <p className="text-sm text-slate-400 mb-4 line-clamp-2">{blog.excerpt || truncateText(blog.content, 100)}</p>
 
                   <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">

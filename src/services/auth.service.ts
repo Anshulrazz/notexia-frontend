@@ -17,13 +17,36 @@ interface RegisterPayload {
 
 interface AuthResponse {
   success: boolean
-  token: string
   user: User
+  token?: string
+}
+
+const setTokenCookie = (token: string) => {
+  if (typeof window !== 'undefined') {
+    document.cookie = `token=${token}; path=/; max-age=604800; SameSite=Lax`
+  }
+}
+
+const getTokenFromCookie = (): string | null => {
+  if (typeof window === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'))
+  return match ? match[2] : null
+}
+
+const clearTokenCookie = () => {
+  if (typeof window !== 'undefined') {
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  }
 }
 
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/login', payload)
+    const { data } = await api.post('/auth/login', payload)
+    
+    if (data.token) {
+      setTokenCookie(data.token)
+    }
+    
     return {
       success: data.success,
       token: data.token,
@@ -42,7 +65,12 @@ export const authService = {
   },
 
   async register(payload: RegisterPayload): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/register', payload)
+    const { data } = await api.post('/auth/register', payload)
+    
+    if (data.token) {
+      setTokenCookie(data.token)
+    }
+    
     return {
       success: data.success,
       token: data.token,
@@ -61,7 +89,12 @@ export const authService = {
   },
 
   async googleLogin(googleToken: string): Promise<AuthResponse> {
-    const { data } = await api.post('/api/auth/google', { token: googleToken })
+    const { data } = await api.post('/auth/google', { token: googleToken })
+    
+    if (data.token) {
+      setTokenCookie(data.token)
+    }
+    
     return {
       success: data.success,
       token: data.token,
@@ -80,7 +113,7 @@ export const authService = {
   },
 
   async getMe(): Promise<User> {
-    const { data } = await api.get('/api/auth/me')
+    const { data } = await api.get('/auth/me')
     const user = data.user || data
     return {
       id: user.id || user._id,
@@ -92,7 +125,21 @@ export const authService = {
       college: user.college,
       branch: user.branch,
       year: user.year,
+      reputation: user.reputation,
       createdAt: user.createdAt,
     }
   },
+
+  async logout(): Promise<void> {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+    } finally {
+      clearTokenCookie()
+    }
+  },
+
+  getToken: getTokenFromCookie,
+  setToken: setTokenCookie,
+  clearToken: clearTokenCookie,
 }

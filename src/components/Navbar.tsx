@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/store/auth.store'
 import { useGlobalStore } from '@/store/global.store'
-import { getInitials } from '@/utils/helpers'
+import { getInitials, getAvatarUrl } from '@/utils/helpers'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -70,7 +70,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9 ring-2 ring-violet-500/30">
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage src={getAvatarUrl(user.avatar)} alt={user.name} />
                       <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-sm">
                         {getInitials(user.name)}
                       </AvatarFallback>
@@ -80,7 +80,7 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="w-56 bg-[#1e1e2e] border-[#2a2a3e] text-white">
                   <div className="flex items-center gap-2 p-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage src={getAvatarUrl(user.avatar)} alt={user.name} />
                       <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-xs">
                         {getInitials(user.name)}
                       </AvatarFallback>

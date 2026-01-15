@@ -50,7 +50,7 @@ export default function RegisterPage() {
         password: data.password,
         college: data.college,
       })
-      login(response.token, response.user)
+      login(response.user)
       toast.success('Account created successfully!')
       router.push('/dashboard')
     } catch {
