@@ -1,5 +1,31 @@
 import api from './api'
 
+export interface Thread {
+  _id: string
+  title: string
+  content: string
+  author?: {
+    _id?: string
+    id?: string
+    name: string
+    avatar?: string
+  }
+  replies?: Reply[]
+  createdAt: string
+}
+
+export interface Reply {
+  _id: string
+  content: string
+  author?: {
+    _id?: string
+    id?: string
+    name: string
+    avatar?: string
+  }
+  createdAt: string
+}
+
 export interface Forum {
   _id: string
   id?: string
@@ -7,6 +33,7 @@ export interface Forum {
   description: string
   category?: string
   members: number
+  threads?: Thread[]
   author?: {
     _id?: string
     id?: string
@@ -49,5 +76,23 @@ export const forumService = {
 
   async joinForum(forumId: string): Promise<void> {
     await api.post(`/api/forums/${forumId}/join`)
+  },
+
+  async createThread(forumId: string, payload: { title: string; content: string }): Promise<Thread> {
+    const { data } = await api.post(`/api/forums/${forumId}/threads`, payload)
+    return data.thread || data
+  },
+
+  async getThreads(forumId: string): Promise<Thread[]> {
+    const { data } = await api.get(`/api/forums/${forumId}/threads`)
+    if (Array.isArray(data)) return data
+    if (data.threads) return data.threads
+    if (data.data) return data.data
+    return []
+  },
+
+  async addReply(forumId: string, threadId: string, content: string): Promise<Reply> {
+    const { data } = await api.post(`/api/forums/${forumId}/threads/${threadId}/replies`, { content })
+    return data.reply || data
   },
 }
