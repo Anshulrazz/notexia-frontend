@@ -87,8 +87,14 @@ export default function BlogsPage() {
     }
   }
 
-  const parseTags = (tags: string | string[]): string[] => {
-    if (Array.isArray(tags)) return tags
+  const parseTags = (tags: string | string[] | { _id: string; name: string }[]): string[] => {
+    if (!tags) return []
+    if (Array.isArray(tags)) {
+      return tags.map(t => {
+        if (typeof t === 'object' && t !== null && 'name' in t) return t.name
+        return String(t)
+      }).filter(Boolean)
+    }
     if (typeof tags === 'string') return tags.split(',').map(t => t.trim()).filter(Boolean)
     return []
   }

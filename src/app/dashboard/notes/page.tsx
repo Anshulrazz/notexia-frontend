@@ -229,20 +229,23 @@ export default function NotesPage() {
           {notes.map((note) => (
             <Card key={note._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
               <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
-                    {note.subject}
-                  </Badge>
-                  <ReportButton contentType="note" contentId={note._id} />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{note.title}</h3>
-                <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {note.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
-                      {tag}
+                  <div className="flex items-start justify-between mb-3">
+                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
+                      {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
                     </Badge>
-                  ))}
+                    <ReportButton contentType="note" contentId={note._id} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{note.title}</h3>
+                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {(Array.isArray(note.tags) ? note.tags : []).slice(0, 3).map((tag) => {
+                      const tagName = typeof tag === 'object' && tag !== null ? (tag as { name?: string }).name || '' : tag
+                      return (
+                        <Badge key={tagName} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
+                          {tagName}
+                        </Badge>
+                      )
+                    })}
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
                   <div className="flex items-center gap-2">
