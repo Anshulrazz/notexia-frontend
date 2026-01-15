@@ -26,7 +26,7 @@ import { FileUpload } from '@/components/FileUpload'
 import { ReportButton } from '@/components/ReportButton'
 import { noteService, Note } from '@/services/note.service'
 import { SUBJECTS } from '@/utils/constants'
-import { formatRelativeTime, getInitials } from '@/utils/helpers'
+import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
 export default function NotesPage() {
@@ -103,20 +103,12 @@ export default function NotesPage() {
   const handleDownload = async (note: Note) => {
     try {
       await noteService.downloadNote(note._id)
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
-      const url = `${baseUrl}${note.file.path}`
-      window.open(url, '_blank')
+      const url = getFileUrl(note.file.path)
+      if (url) window.open(url, '_blank')
       toast.success('Download started')
     } catch {
       toast.error('Failed to download')
     }
-  }
-
-  const getAvatarUrl = (avatar?: string) => {
-    if (!avatar) return undefined
-    if (avatar.startsWith('http')) return avatar
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
-    return `${baseUrl}${avatar}`
   }
 
   return (

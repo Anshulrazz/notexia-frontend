@@ -19,7 +19,7 @@ import {
 import { ReportButton } from '@/components/ReportButton'
 import { doubtService, Doubt } from '@/services/doubt.service'
 import { aiService } from '@/services/ai.service'
-import { formatRelativeTime, getInitials } from '@/utils/helpers'
+import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
 import { useAuthStore } from '@/store/auth.store'
 import { toast } from 'sonner'
 
@@ -156,13 +156,6 @@ export default function DoubtsPage() {
     } finally {
       setIsGettingHint(false)
     }
-  }
-
-  const getAvatarUrl = (avatar?: string) => {
-    if (!avatar) return undefined
-    if (avatar.startsWith('http')) return avatar
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
-    return `${baseUrl}${avatar}`
   }
 
   const parseTags = (tags: string | string[]): string[] => {

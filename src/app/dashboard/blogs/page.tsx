@@ -18,7 +18,7 @@ import {
 import { Editor } from '@/components/Editor'
 import { ReportButton } from '@/components/ReportButton'
 import { blogService, Blog } from '@/services/blog.service'
-import { formatRelativeTime, getInitials, truncateText } from '@/utils/helpers'
+import { formatRelativeTime, getInitials, truncateText, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
 export default function BlogsPage() {
@@ -85,13 +85,6 @@ export default function BlogsPage() {
     } catch {
       toast.error('Failed to like blog')
     }
-  }
-
-  const getAvatarUrl = (avatar?: string) => {
-    if (!avatar) return undefined
-    if (avatar.startsWith('http')) return avatar
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
-    return `${baseUrl}${avatar}`
   }
 
   const parseTags = (tags: string | string[]): string[] => {

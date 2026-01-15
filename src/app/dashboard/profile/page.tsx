@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/store/auth.store'
 import { userService } from '@/services/user.service'
-import { getInitials, formatDate } from '@/utils/helpers'
+import { getInitials, formatDate, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
 export default function ProfilePage() {
@@ -55,13 +55,6 @@ export default function ProfilePage() {
     } finally {
       setIsUploadingAvatar(false)
     }
-  }
-
-  const getAvatarUrl = (avatar?: string) => {
-    if (!avatar) return undefined
-    if (avatar.startsWith('http')) return avatar
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
-    return `${baseUrl}${avatar}`
   }
 
   return (
