@@ -19,7 +19,6 @@ export default function ForumDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [forum, setForum] = useState<Forum | null>(null)
-  const [threads, setThreads] = useState<Thread[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isJoining, setIsJoining] = useState(false)
   const [isCreatingThread, setIsCreatingThread] = useState(false)
@@ -32,7 +31,6 @@ export default function ForumDetailPage() {
   useEffect(() => {
     if (params.id) {
       loadForum(params.id as string)
-      loadThreads(params.id as string)
     }
   }, [params.id])
 
@@ -49,21 +47,16 @@ export default function ForumDetailPage() {
     }
   }
 
-  const loadThreads = async (id: string) => {
-    try {
-      const data = await forumService.getThreads(id)
-      setThreads(data)
-    } catch {
-      console.error('Failed to load threads')
-    }
-  }
-
   const handleJoin = async () => {
     if (!forum) return
     setIsJoining(true)
     try {
       await forumService.joinForum(forum._id)
-      setForum((prev) => prev ? { ...prev, members: prev.members + 1 } : null)
+      setForum((prev) => {
+        if (!prev) return null
+        const currentMembers = Array.isArray(prev.members) ? prev.members : []
+        return { ...prev, members: [...currentMembers, 'user'] }
+      })
       toast.success('Joined forum successfully')
     } catch {
       toast.error('Failed to join forum')
@@ -77,7 +70,10 @@ export default function ForumDetailPage() {
     setIsCreatingThread(true)
     try {
       const thread = await forumService.createThread(forum._id, newThread)
-      setThreads((prev) => [thread, ...prev])
+      setForum((prev) => {
+        if (!prev) return null
+        return { ...prev, threads: [thread, ...(prev.threads || [])] }
+      })
       setNewThread({ title: '', content: '' })
       setDialogOpen(false)
       toast.success('Thread created successfully')
@@ -93,11 +89,15 @@ export default function ForumDetailPage() {
     setIsReplying(true)
     try {
       const reply = await forumService.addReply(forum._id, threadId, replyContent)
-      setThreads((prev) =>
-        prev.map((t) =>
-          t._id === threadId ? { ...t, replies: [...(t.replies || []), reply] } : t
-        )
-      )
+      setForum((prev) => {
+        if (!prev) return null
+        return {
+          ...prev,
+          threads: prev.threads?.map((t) =>
+            t._id === threadId ? { ...t, replies: [...(t.replies || []), reply] } : t
+          ),
+        }
+      })
       setReplyContent('')
       toast.success('Reply posted')
     } catch {
@@ -107,17 +107,14 @@ export default function ForumDetailPage() {
     }
   }
 
-  const renderValue = (val: unknown, fallback: string = ''): string => {
-    if (val === null || val === undefined) return fallback
-    if (typeof val === 'string' || typeof val === 'number') return String(val)
-    if (typeof val === 'object') {
-      if (Array.isArray(val)) return String(val.length)
-      const obj = val as Record<string, unknown>
-      if (obj.name && typeof obj.name === 'string') return obj.name
-      if (obj.title && typeof obj.title === 'string') return obj.title
-      return fallback
-    }
-    return fallback
+  const getMembersCount = (members: string[] | number | undefined): number => {
+    if (Array.isArray(members)) return members.length
+    if (typeof members === 'number') return members
+    return 0
+  }
+
+  const getThreadsCount = (threads: Thread[] | undefined): number => {
+    return threads?.length || 0
   }
 
   if (isLoading) {
@@ -140,8 +137,9 @@ export default function ForumDetailPage() {
     )
   }
 
-  const forumName = renderValue(forum.name, 'Unnamed Forum')
-  const forumDescription = renderValue(forum.description, 'No description available')
+  const forumName = forum.name || 'Unnamed Forum'
+  const forumDescription = forum.description || 'No description available'
+  const threads = forum.threads || []
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -166,33 +164,17 @@ export default function ForumDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#2a2a3e]">
             <div className="flex items-center gap-2 text-slate-400">
               <Users className="h-4 w-4 text-amber-400" />
-              <span>{renderValue(forum.members, '0')} members</span>
+              <span>{getMembersCount(forum.members)} members</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-400">
+              <MessageSquare className="h-4 w-4 text-amber-400" />
+              <span>{getThreadsCount(forum.threads)} threads</span>
             </div>
             <div className="flex items-center gap-2 text-slate-400">
               <Calendar className="h-4 w-4" />
               <span>Created {formatRelativeTime(forum.createdAt)}</span>
             </div>
-            {forum.category && (
-              <div className="flex items-center gap-2 text-slate-400">
-                <MessageSquare className="h-4 w-4" />
-                <span>{renderValue(forum.category, 'General')}</span>
-              </div>
-            )}
           </div>
-
-          {forum.author && (
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-amber-500/20 text-amber-400">
-                  {getInitials(forum.author.name || 'U')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-white">{forum.author.name || 'Unknown'}</p>
-                <p className="text-xs text-slate-500">Forum Creator</p>
-              </div>
-            </div>
-          )}
 
           <div className="flex justify-end">
             <Button

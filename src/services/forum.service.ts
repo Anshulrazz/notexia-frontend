@@ -32,8 +32,13 @@ export interface Forum {
   name: string
   description: string
   category?: string
-  members: number
+  members: string[] | number
   threads?: Thread[]
+  creator?: {
+    _id?: string
+    id?: string
+    name?: string
+  } | string
   author?: {
     _id?: string
     id?: string
@@ -79,12 +84,12 @@ export const forumService = {
   },
 
   async createThread(forumId: string, payload: { title: string; content: string }): Promise<Thread> {
-    const { data } = await api.post(`/api/forums/${forumId}/threads`, payload)
+    const { data } = await api.post(`/api/forums/${forumId}/thread`, payload)
     return data.thread || data
   },
 
   async getThreads(forumId: string): Promise<Thread[]> {
-    const { data } = await api.get(`/api/forums/${forumId}/threads`)
+    const { data } = await api.get(`/api/forums/${forumId}/thread`)
     if (Array.isArray(data)) return data
     if (data.threads) return data.threads
     if (data.data) return data.data
