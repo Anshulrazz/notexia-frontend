@@ -41,7 +41,7 @@ interface BanResponse {
 export const adminService = {
   async getStats(): Promise<AdminStats> {
     const { data } = await api.get('/admin/stats')
-    const stats = data.data || data
+    const stats = data.stats || data.data || data
     return {
       totalUsers: stats.totalUsers ?? stats.users ?? 0,
       totalNotes: stats.totalNotes ?? stats.notes ?? 0,
