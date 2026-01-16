@@ -13,6 +13,9 @@ const recentActivity = [
   { type: 'blog', title: 'My Learning Journey', time: '2 days ago' },
 ]
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getInitials, getAvatarUrl } from '@/utils/helpers'
+
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const [stats, setStats] = useState<AdminStats | null>(null)
@@ -41,11 +44,19 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">
-          Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
-        </h1>
-        <p className="text-slate-400 mt-1">Here&apos;s what&apos;s happening with your account.</p>
+      <div className="flex items-center gap-4">
+        <Avatar className="h-16 w-16 ring-4 ring-violet-500/20">
+          <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
+          <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-xl font-bold">
+            {getInitials(user?.name || '')}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-3xl font-bold text-white">
+            Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
+          </h1>
+          <p className="text-slate-400 mt-1">Here&apos;s what&apos;s happening with your account.</p>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

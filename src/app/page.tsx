@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FileText, HelpCircle, Users, BookOpen, ArrowRight, Sparkles, Zap, Star, Rocket, Brain, Target, Trophy, ChevronDown, Play, CheckCircle2, Globe, Shield, Clock, LayoutDashboard } from 'lucide-react'
+import { FileText, HelpCircle, Users, BookOpen, ArrowRight, Sparkles, Zap, Star, Rocket, Brain, Target, Trophy, ChevronDown, Play, CheckCircle2, Globe, Shield, Clock, LayoutDashboard, Search, MessageSquare, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth.store'
@@ -116,9 +116,11 @@ function AnimatedCounter({ target, suffix = '' }: { target: string; suffix?: str
 export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isVisible, setIsVisible] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { isAuthenticated, user, login } = useAuthStore()
 
   useEffect(() => {
+    setIsMounted(true)
     setIsVisible(true)
     
     const handleMouseMove = (e: MouseEvent) => {
@@ -181,7 +183,7 @@ export default function HomePage() {
         .hover-lift:hover { transform: translateY(-8px) scale(1.02); }
       `}</style>
 
-      {[...Array(20)].map((_, i) => (
+      {isMounted && [...Array(20)].map((_, i) => (
         <FloatingParticle
           key={i}
           delay={i * 0.5}
@@ -297,15 +299,15 @@ export default function HomePage() {
             <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>100% Free</span>
+                <span>100% Free Forever</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>No Credit Card</span>
+                <span>Instant Access</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Cancel Anytime</span>
+                <span>Student-First Community</span>
               </div>
             </div>
 
@@ -324,7 +326,11 @@ export default function HomePage() {
                     <stat.icon className="w-7 h-7 text-violet-400" />
                   </div>
                   <p className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                    <AnimatedCounter target={stat.value} suffix={stat.value.includes('+') ? '+' : ''} />
+                    {isMounted ? (
+                      <AnimatedCounter target={stat.value} suffix={stat.value.includes('+') ? '+' : ''} />
+                    ) : (
+                      <span>{stat.value}</span>
+                    )}
                   </p>
                   <p className="text-sm text-slate-400 mt-2 font-medium">{stat.label}</p>
                 </div>
@@ -369,6 +375,46 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 className="text-4xl sm:text-5xl font-black text-white mb-8">
+                  The <span className="text-violet-400">Smart</span> Way to Study
+                </h2>
+                <div className="space-y-6">
+                  {[
+                    { icon: Search, title: 'Find Quality Notes', desc: 'Browse through thousands of verified study materials.' },
+                    { icon: MessageSquare, title: 'AI-Powered Doubts', desc: 'Ask anything and get hints that help you learn, not just the answer.' },
+                    { icon: Share2, title: 'Collaborate', desc: 'Join forums and study groups to grow together.' },
+                    { icon: Download, title: 'Offline Access', desc: 'Download resources and learn even without an internet connection.' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors group">
+                      <div className="h-12 w-12 rounded-xl bg-violet-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <item.icon className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold text-lg">{item.title}</h4>
+                        <p className="text-slate-400">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 blur-[100px] opacity-20 animate-pulse" />
+                <div className="relative glass rounded-3xl p-8 border-violet-500/20 aspect-square flex items-center justify-center overflow-hidden group">
+                   <div className="relative w-full h-full flex items-center justify-center">
+                      <div className="absolute w-64 h-64 rounded-full border-2 border-dashed border-violet-500/20 animate-spin-slow" />
+                      <div className="absolute w-48 h-48 rounded-full border-2 border-dashed border-fuchsia-500/20 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
+                      <Brain className="w-24 h-24 text-violet-400 animate-bounce-slow" />
+                   </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
