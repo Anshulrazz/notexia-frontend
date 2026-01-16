@@ -13,7 +13,6 @@ export interface Bookmark {
       name: string
       avatar?: string
     }
-    subject?: string
     tags?: string[]
     createdAt: string
   }
@@ -32,8 +31,9 @@ export interface BookmarkResponse {
 }
 
 export const bookmarkService = {
-  getAll: async (type?: string): Promise<BookmarkResponse> => {
-    const params = type && type !== 'all' ? { type } : {}
+  getAll: async (type?: string, page: number = 1, limit: number = 20): Promise<BookmarkResponse> => {
+    const params: { type?: string; page: number; limit: number } = { page, limit }
+    if (type && type !== 'all') params.type = type
     const response = await api.get('/bookmarks', { params })
     return response.data
   },
@@ -48,7 +48,7 @@ export const bookmarkService = {
     return response.data
   },
 
-  check: async (itemType: string, itemId: string): Promise<{ success: boolean; isBookmarked: boolean; bookmarkId?: string }> => {
+  check: async (itemType: string, itemId: string): Promise<{ success: boolean; isBookmarked: boolean; bookmarkId: string | null }> => {
     const response = await api.get(`/bookmarks/check/${itemType}/${itemId}`)
     return response.data
   },

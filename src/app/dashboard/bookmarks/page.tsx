@@ -24,7 +24,7 @@ export default function BookmarksPage() {
   const loadBookmarks = async () => {
     setIsLoading(true)
     try {
-      const response = await bookmarkService.getAll(activeTab)
+      const response = await bookmarkService.getAll(activeTab, 1, 20)
       setBookmarks(response.data || [])
     } catch {
       setBookmarks([])
