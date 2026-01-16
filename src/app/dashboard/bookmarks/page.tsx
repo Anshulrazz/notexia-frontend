@@ -9,35 +9,23 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
+import { bookmarkService, Bookmark as BookmarkType } from '@/services/bookmark.service'
 import { toast } from 'sonner'
 
-interface BookmarkItem {
-  _id: string
-  type: 'note' | 'doubt' | 'blog'
-  title: string
-  author?: { name: string; avatar?: string }
-  createdAt: string
-  subject?: string
-  tags?: string[]
-}
-
 export default function BookmarksPage() {
-  const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([])
+  const [bookmarks, setBookmarks] = useState<BookmarkType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     loadBookmarks()
-  }, [])
+  }, [activeTab])
 
   const loadBookmarks = async () => {
     setIsLoading(true)
     try {
-      setBookmarks([
-        { _id: '1', type: 'note', title: 'Data Structures - Complete Guide', author: { name: 'John Doe' }, createdAt: new Date().toISOString(), subject: 'Computer Science', tags: ['DSA', 'Algorithms'] },
-        { _id: '2', type: 'blog', title: 'How to Ace Your Exams', author: { name: 'Jane Smith' }, createdAt: new Date().toISOString(), tags: ['Study Tips'] },
-        { _id: '3', type: 'doubt', title: 'How to implement binary search?', author: { name: 'Alex Kumar' }, createdAt: new Date().toISOString(), tags: ['DSA', 'Searching'] },
-      ])
+      const response = await bookmarkService.getAll(activeTab)
+      setBookmarks(response.data || [])
     } catch {
       setBookmarks([])
     } finally {
@@ -45,12 +33,15 @@ export default function BookmarksPage() {
     }
   }
 
-  const handleRemoveBookmark = (id: string) => {
-    setBookmarks((prev) => prev.filter((b) => b._id !== id))
-    toast.success('Bookmark removed')
+  const handleRemoveBookmark = async (id: string) => {
+    try {
+      await bookmarkService.remove(id)
+      setBookmarks((prev) => prev.filter((b) => b._id !== id))
+      toast.success('Bookmark removed')
+    } catch {
+      toast.error('Failed to remove bookmark')
+    }
   }
-
-  const filteredBookmarks = activeTab === 'all' ? bookmarks : bookmarks.filter((b) => b.type === activeTab)
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -70,11 +61,11 @@ export default function BookmarksPage() {
     }
   }
 
-  const getHref = (item: BookmarkItem) => {
-    switch (item.type) {
-      case 'note': return `/dashboard/notes/${item._id}`
-      case 'doubt': return `/dashboard/doubts/${item._id}`
-      case 'blog': return `/dashboard/blogs/${item._id}`
+  const getHref = (bookmark: BookmarkType) => {
+    switch (bookmark.itemType) {
+      case 'note': return `/dashboard/notes/${bookmark.itemId}`
+      case 'doubt': return `/dashboard/doubts/${bookmark.itemId}`
+      case 'blog': return `/dashboard/blogs/${bookmark.itemId}`
       default: return '#'
     }
   }
@@ -102,7 +93,7 @@ export default function BookmarksPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
             </div>
-          ) : filteredBookmarks.length === 0 ? (
+          ) : bookmarks.length === 0 ? (
             <div className="text-center py-12">
               <Bookmark className="h-12 w-12 text-slate-600 mx-auto mb-4" />
               <p className="text-slate-400">No bookmarks found</p>
@@ -110,35 +101,35 @@ export default function BookmarksPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredBookmarks.map((item) => (
-                <Card key={item._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors group">
+              {bookmarks.map((bookmark) => (
+                <Card key={bookmark._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors group">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${getColor(item.type)} flex items-center justify-center`}>
-                        {getIcon(item.type)}
+                      <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${getColor(bookmark.itemType)} flex items-center justify-center`}>
+                        {getIcon(bookmark.itemType)}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleRemoveBookmark(item._id)}
+                        onClick={() => handleRemoveBookmark(bookmark._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
 
                     <Badge variant="secondary" className="mb-2 capitalize bg-slate-500/10 text-slate-400 border-slate-500/30">
-                      {item.type}
+                      {bookmark.itemType}
                     </Badge>
 
-                    <Link href={getHref(item)}>
+                    <Link href={getHref(bookmark)}>
                       <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-violet-400 transition-colors">
-                        {item.title}
+                        {bookmark.item?.title || 'Untitled'}
                       </h3>
                     </Link>
 
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {item.tags?.slice(0, 2).map((tag) => (
+                      {bookmark.item?.tags?.slice(0, 2).map((tag) => (
                         <Badge key={tag} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
                           {tag}
                         </Badge>
@@ -147,14 +138,14 @@ export default function BookmarksPage() {
 
                     <div className="flex items-center gap-2 pt-4 border-t border-[#2a2a3e]">
                       <Avatar className="h-7 w-7">
-                        <AvatarImage src={getAvatarUrl(item.author?.avatar)} />
+                        <AvatarImage src={getAvatarUrl(bookmark.item?.author?.avatar)} />
                         <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
-                          {getInitials(item.author?.name || 'U')}
+                          {getInitials(bookmark.item?.author?.name || 'U')}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-xs font-medium text-white">{item.author?.name || 'Unknown'}</p>
-                        <p className="text-xs text-slate-500">{formatRelativeTime(item.createdAt)}</p>
+                        <p className="text-xs font-medium text-white">{bookmark.item?.author?.name || 'Unknown'}</p>
+                        <p className="text-xs text-slate-500">{formatRelativeTime(bookmark.item?.createdAt || bookmark.createdAt)}</p>
                       </div>
                     </div>
                   </CardContent>
