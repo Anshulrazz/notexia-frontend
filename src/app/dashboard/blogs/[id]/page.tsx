@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Heart, Calendar, Eye, Loader2 } from 'lucide-react'
+import { ArrowLeft, Heart, Calendar, Eye, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
 import { blogService, Blog } from '@/services/blog.service'
+import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
@@ -17,10 +18,13 @@ export default function BlogDetailPage() {
   const router = useRouter()
   const [blog, setBlog] = useState<Blog | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null)
 
   useEffect(() => {
     if (params.id) {
       loadBlog(params.id as string)
+      checkBookmark(params.id as string)
     }
   }, [params.id])
 
@@ -34,6 +38,35 @@ export default function BlogDetailPage() {
       router.push('/dashboard/blogs')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const checkBookmark = async (id: string) => {
+    try {
+      const response = await bookmarkService.check('blog', id)
+      setIsBookmarked(response.isBookmarked)
+      setBookmarkId(response.bookmarkId)
+    } catch {
+      setIsBookmarked(false)
+    }
+  }
+
+  const handleBookmark = async () => {
+    if (!blog) return
+    try {
+      if (isBookmarked && bookmarkId) {
+        await bookmarkService.remove(bookmarkId)
+        setIsBookmarked(false)
+        setBookmarkId(null)
+        toast.success('Bookmark removed')
+      } else {
+        const response = await bookmarkService.add('blog', blog._id)
+        setIsBookmarked(true)
+        setBookmarkId(response.data._id)
+        toast.success('Bookmarked!')
+      }
+    } catch {
+      toast.error('Failed to update bookmark')
     }
   }
 
@@ -140,16 +173,24 @@ export default function BlogDetailPage() {
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
 
-          <div className="flex items-center justify-end pt-6 border-t border-[#2a2a3e]">
-            <Button
-              variant="outline"
-              className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10"
-              onClick={handleLike}
-            >
-              <Heart className="h-4 w-4 mr-2" />
-              Like ({blog.likes?.length || 0})
-            </Button>
-          </div>
+            <div className="flex items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
+              <Button
+                variant="outline"
+                className={`border-[#2a2a3e] ${isBookmarked ? 'text-emerald-400 border-emerald-500/50' : 'text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50'}`}
+                onClick={handleBookmark}
+              >
+                {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                {isBookmarked ? 'Saved' : 'Save'}
+              </Button>
+              <Button
+                variant="outline"
+                className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10"
+                onClick={handleLike}
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                Like ({blog.likes?.length || 0})
+              </Button>
+            </div>
         </CardContent>
       </Card>
     </div>

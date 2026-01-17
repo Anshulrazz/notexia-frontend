@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ThumbsUp, Check, Sparkles, Calendar, Tag, MessageSquare, Loader2 } from 'lucide-react'
+import { ArrowLeft, ThumbsUp, Check, Sparkles, Calendar, Tag, MessageSquare, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { ReportButton } from '@/components/ReportButton'
 import { doubtService, Doubt } from '@/services/doubt.service'
+import { bookmarkService } from '@/services/bookmark.service'
 import { aiService } from '@/services/ai.service'
 import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
 import { useAuthStore } from '@/store/auth.store'
@@ -26,10 +27,13 @@ export default function DoubtDetailPage() {
   const [isAnswering, setIsAnswering] = useState(false)
   const [aiHint, setAiHint] = useState('')
   const [isGettingHint, setIsGettingHint] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null)
 
   useEffect(() => {
     if (params.id) {
       loadDoubt(params.id as string)
+      checkBookmark(params.id as string)
     }
   }, [params.id])
 
@@ -43,6 +47,35 @@ export default function DoubtDetailPage() {
       router.push('/dashboard/doubts')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const checkBookmark = async (id: string) => {
+    try {
+      const response = await bookmarkService.check('doubt', id)
+      setIsBookmarked(response.isBookmarked)
+      setBookmarkId(response.bookmarkId)
+    } catch {
+      setIsBookmarked(false)
+    }
+  }
+
+  const handleBookmark = async () => {
+    if (!doubt) return
+    try {
+      if (isBookmarked && bookmarkId) {
+        await bookmarkService.remove(bookmarkId)
+        setIsBookmarked(false)
+        setBookmarkId(null)
+        toast.success('Bookmark removed')
+      } else {
+        const response = await bookmarkService.add('doubt', doubt._id)
+        setIsBookmarked(true)
+        setBookmarkId(response.data._id)
+        toast.success('Bookmarked!')
+      }
+    } catch {
+      toast.error('Failed to update bookmark')
     }
   }
 
@@ -173,33 +206,43 @@ export default function DoubtDetailPage() {
             ))}
           </div>
 
-          <div className="flex items-center justify-between py-4 border-t border-b border-[#2a2a3e]">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
-                <AvatarFallback className="bg-blue-500/20 text-blue-400">
-                  {getInitials(doubt.author?.name || 'U')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
-                <p className="text-xs text-slate-500 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {formatRelativeTime(doubt.createdAt)}
-                </p>
+            <div className="flex items-center justify-between py-4 border-t border-b border-[#2a2a3e]">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
+                  <AvatarFallback className="bg-blue-500/20 text-blue-400">
+                    {getInitials(doubt.author?.name || 'U')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
+                  <p className="text-xs text-slate-500 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {formatRelativeTime(doubt.createdAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-blue-400 border-blue-500/50' : 'text-slate-300 hover:text-blue-400 hover:border-blue-500/50'}`}
+                  onClick={handleBookmark}
+                >
+                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                  {isBookmarked ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                  onClick={handleGetHint}
+                  disabled={isGettingHint}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
+                </Button>
               </div>
             </div>
-
-            <Button
-              variant="outline"
-              className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-              onClick={handleGetHint}
-              disabled={isGettingHint}
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
-            </Button>
-          </div>
 
           {aiHint && (
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">

@@ -70,9 +70,9 @@ export default function ForumsPage() {
 
   const handleJoinForum = async (forumId: string) => {
     try {
-      await forumService.joinForum(forumId)
+      const response = await forumService.joinForum(forumId)
       setForums((prev) =>
-        prev.map((f) => (f._id === forumId ? { ...f, members: f.members + 1 } : f))
+        prev.map((f) => (f._id === forumId ? { ...f, members: [...(Array.isArray(f.members) ? f.members : []), { name: 'user' }] } : f))
       )
       toast.success('Joined forum successfully')
     } catch {

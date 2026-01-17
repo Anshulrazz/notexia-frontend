@@ -36,29 +36,31 @@ export default function ReportsPage() {
     try {
       const data = await reportService.getReports()
       setReports(data)
-    } catch {
-      setReports([
-        {
-          id: '1',
-          contentType: 'note',
-          contentId: 'n1',
-          reason: 'Spam or misleading',
-          description: 'This note contains misleading information.',
-          reporter: { id: '1', name: 'User 1' },
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          contentType: 'blog',
-          contentId: 'b1',
-          reason: 'Inappropriate content',
-          description: 'Contains offensive language.',
-          reporter: { id: '2', name: 'User 2' },
-          status: 'reviewed',
-          createdAt: new Date(Date.now() - 86400000).toISOString(),
-        },
-      ])
+      } catch {
+        setReports([
+          {
+            _id: '1',
+            id: '1',
+            contentType: 'note',
+            contentId: 'n1',
+            reason: 'Spam or misleading',
+            description: 'This note contains misleading information.',
+            reporter: { id: '1', name: 'User 1' },
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            _id: '2',
+            id: '2',
+            contentType: 'blog',
+            contentId: 'b1',
+            reason: 'Inappropriate content',
+            description: 'Contains offensive language.',
+            reporter: { id: '2', name: 'User 2' },
+            status: 'reviewed',
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+        ])
     } finally {
       setIsLoading(false)
     }
@@ -101,8 +103,8 @@ export default function ReportsPage() {
               const status = statusConfig[report.status]
               const StatusIcon = status.icon
 
-              return (
-                <Card key={report.id} className="bg-[#1e1e2e] border-[#2a2a3e]">
+                return (
+                  <Card key={report._id || report.id} className="bg-[#1e1e2e] border-[#2a2a3e]">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -125,10 +127,10 @@ export default function ReportsPage() {
 
                     <div className="flex items-center gap-4 pt-4 border-t border-[#2a2a3e]">
                       <span className="text-sm text-slate-400">Update Status:</span>
-                      <Select
-                        value={report.status}
-                        onValueChange={(value) => handleStatusUpdate(report.id, value as Report['status'])}
-                      >
+                        <Select
+                          value={report.status}
+                          onValueChange={(value) => handleStatusUpdate(report._id || report.id || '', value as Report['status'])}
+                        >
                         <SelectTrigger className="w-[150px] bg-[#12121a] border-[#2a2a3e] text-white">
                           <SelectValue />
                         </SelectTrigger>

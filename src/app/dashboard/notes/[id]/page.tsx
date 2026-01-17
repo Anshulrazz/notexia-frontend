@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark } from 'lucide-react'
+import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -24,6 +24,7 @@ export default function NoteDetailPage() {
   useEffect(() => {
     if (params.id) {
       loadNote(params.id as string)
+      checkBookmark(params.id as string)
     }
   }, [params.id])
 
@@ -32,16 +33,40 @@ export default function NoteDetailPage() {
     try {
       const data = await noteService.getNote(id)
       setNote(data)
-      try {
-        const bookmarkCheck = await bookmarkService.check('note', id)
-        setIsBookmarked(bookmarkCheck.isBookmarked)
-        setBookmarkId(bookmarkCheck.bookmarkId)
-      } catch {}
     } catch {
       toast.error('Failed to load note')
       router.push('/dashboard/notes')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const checkBookmark = async (id: string) => {
+    try {
+      const response = await bookmarkService.check('note', id)
+      setIsBookmarked(response.isBookmarked)
+      setBookmarkId(response.bookmarkId)
+    } catch {
+      setIsBookmarked(false)
+    }
+  }
+
+  const handleBookmark = async () => {
+    if (!note) return
+    try {
+      if (isBookmarked && bookmarkId) {
+        await bookmarkService.remove(bookmarkId)
+        setIsBookmarked(false)
+        setBookmarkId(null)
+        toast.success('Bookmark removed')
+      } else {
+        const response = await bookmarkService.add('note', note._id)
+        setIsBookmarked(true)
+        setBookmarkId(response.data._id)
+        toast.success('Bookmarked!')
+      }
+    } catch {
+      toast.error('Failed to update bookmark')
     }
   }
 
@@ -68,26 +93,7 @@ export default function NoteDetailPage() {
     }
   }
 
-  const handleBookmark = async () => {
-    if (!note) return
-    try {
-      if (isBookmarked && bookmarkId) {
-        await bookmarkService.remove(bookmarkId)
-        setIsBookmarked(false)
-        setBookmarkId(null)
-        toast.success('Bookmark removed')
-      } else {
-        const result = await bookmarkService.add('note', note._id)
-        setIsBookmarked(true)
-        setBookmarkId(result.data._id)
-        toast.success('Bookmarked!')
-      }
-    } catch {
-      toast.error('Failed to update bookmark')
-    }
-  }
-
-  const getSubjectName = (subject: string | { name?: string } | null): string => {
+  const getSubjectName = (subject: string | { name?: string } | null | undefined): string => {
     if (!subject) return 'Unknown'
     if (typeof subject === 'object' && subject.name) return subject.name
     if (typeof subject === 'string') return subject
@@ -139,17 +145,7 @@ export default function NoteDetailPage() {
             <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30 mb-4">
               {getSubjectName(note.subject)}
             </Badge>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 ${isBookmarked ? 'text-violet-400' : 'text-slate-400'} hover:text-violet-400 hover:bg-violet-500/10`}
-                onClick={handleBookmark}
-              >
-                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
-              </Button>
-              <ReportButton contentType="note" contentId={note._id} />
-            </div>
+            <ReportButton contentType="note" contentId={note._id} />
           </div>
           <CardTitle className="text-2xl text-white">{note.title}</CardTitle>
         </CardHeader>
@@ -200,23 +196,31 @@ export default function NoteDetailPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
-                onClick={handleLike}
-              >
-                <Heart className="h-4 w-4 mr-2" />
-                Like
-              </Button>
-              <Button
-                className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
-                onClick={handleDownload}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-violet-400 border-violet-500/50' : 'text-slate-300 hover:text-violet-400 hover:border-violet-500/50'}`}
+                  onClick={handleBookmark}
+                >
+                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                  {isBookmarked ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
+                  onClick={handleLike}
+                >
+                  <Heart className="h-4 w-4 mr-2" />
+                  Like
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
+                  onClick={handleDownload}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
           </div>
         </CardContent>
       </Card>
