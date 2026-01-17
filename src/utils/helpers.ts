@@ -58,7 +58,7 @@ export function isValidEmail(email: string): boolean {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
 
-export function getAvatarUrl(avatar?: string): string | undefined {
+export function getAvatarUrl(avatar?: string | null): string | undefined {
   if (!avatar) return undefined
   if (avatar.startsWith('http')) return avatar
   if (avatar.startsWith('/')) return `http://localhost:5001${avatar}`

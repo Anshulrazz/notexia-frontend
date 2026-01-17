@@ -37,8 +37,9 @@ export interface Forum {
     _id?: string
     id?: string
     name: string
+    avatar?: string
   }
-  members: { _id?: string; id?: string; name: string }[]
+  members: { _id?: string; id?: string; name: string; avatar?: string }[]
   threads: Thread[]
   createdAt: string
 }

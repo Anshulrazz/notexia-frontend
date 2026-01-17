@@ -159,20 +159,35 @@ export default function ForumDetailPage() {
         <CardContent className="space-y-6">
           <p className="text-slate-300 leading-relaxed">{forumDescription}</p>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#2a2a3e]">
-            <div className="flex items-center gap-2 text-slate-400">
-              <Users className="h-4 w-4 text-amber-400" />
-              <span>{getMembersCount(forum.members)} members</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#2a2a3e]">
+              <div className="flex items-center gap-2 text-slate-400">
+                <Users className="h-4 w-4 text-amber-400" />
+                <span>{getMembersCount(forum.members)} members</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-400">
+                <MessageSquare className="h-4 w-4 text-amber-400" />
+                <span>{getThreadsCount(forum.threads)} threads</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-400">
+                <Calendar className="h-4 w-4" />
+                <span>Created {formatRelativeTime(forum.createdAt)}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <MessageSquare className="h-4 w-4 text-amber-400" />
-              <span>{getThreadsCount(forum.threads)} threads</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <Calendar className="h-4 w-4" />
-              <span>Created {formatRelativeTime(forum.createdAt)}</span>
-            </div>
-          </div>
+
+            {forum.creator && (
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={getAvatarUrl(forum.creator?.avatar)} />
+                  <AvatarFallback className="bg-amber-500/20 text-amber-400">
+                    {getInitials(forum.creator?.name || 'U')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium text-white">{forum.creator?.name || 'Unknown'}</p>
+                  <p className="text-xs text-slate-500">Creator</p>
+                </div>
+              </div>
+            )}
 
           <div className="flex justify-end">
             <Button
@@ -269,16 +284,22 @@ export default function ForumDetailPage() {
 
                 {expandedThread === thread._id && (
                   <div className="mt-4 pt-4 border-t border-[#2a2a3e] space-y-3">
-                    {thread.replies?.map((reply) => (
-                      <div key={reply._id} className="pl-4 border-l-2 border-amber-500/30">
-                        <p className="text-sm text-slate-300">{reply.content}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-slate-500">{reply.author?.name || 'Unknown'}</span>
-                          <span className="text-xs text-slate-600">•</span>
-                          <span className="text-xs text-slate-500">{formatRelativeTime(reply.createdAt)}</span>
+                      {thread.replies?.map((reply) => (
+                        <div key={reply._id} className="pl-4 border-l-2 border-amber-500/30">
+                          <p className="text-sm text-slate-300">{reply.content}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Avatar className="h-5 w-5">
+                              <AvatarImage src={getAvatarUrl(reply.author?.avatar)} />
+                              <AvatarFallback className="bg-amber-500/20 text-amber-400 text-xs">
+                                {getInitials(reply.author?.name || 'U')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-xs text-slate-500">{reply.author?.name || 'Unknown'}</span>
+                            <span className="text-xs text-slate-600">•</span>
+                            <span className="text-xs text-slate-500">{formatRelativeTime(reply.createdAt)}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
 
                     <div className="flex gap-2 mt-3">
                       <Input

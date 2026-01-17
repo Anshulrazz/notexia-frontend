@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2 } from 'lucide-react'
+import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
 import { noteService, Note } from '@/services/note.service'
+import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
@@ -17,10 +18,13 @@ export default function NoteDetailPage() {
   const router = useRouter()
   const [note, setNote] = useState<Note | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null)
 
   useEffect(() => {
     if (params.id) {
       loadNote(params.id as string)
+      checkBookmark(params.id as string)
     }
   }, [params.id])
 
@@ -34,6 +38,35 @@ export default function NoteDetailPage() {
       router.push('/dashboard/notes')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const checkBookmark = async (id: string) => {
+    try {
+      const response = await bookmarkService.check('note', id)
+      setIsBookmarked(response.isBookmarked)
+      setBookmarkId(response.bookmarkId)
+    } catch {
+      setIsBookmarked(false)
+    }
+  }
+
+  const handleBookmark = async () => {
+    if (!note) return
+    try {
+      if (isBookmarked && bookmarkId) {
+        await bookmarkService.remove(bookmarkId)
+        setIsBookmarked(false)
+        setBookmarkId(null)
+        toast.success('Bookmark removed')
+      } else {
+        const response = await bookmarkService.add('note', note._id)
+        setIsBookmarked(true)
+        setBookmarkId(response.data._id)
+        toast.success('Bookmarked!')
+      }
+    } catch {
+      toast.error('Failed to update bookmark')
     }
   }
 
@@ -60,7 +93,7 @@ export default function NoteDetailPage() {
     }
   }
 
-  const getSubjectName = (subject: string | { name?: string } | null): string => {
+  const getSubjectName = (subject: string | { name?: string } | null | undefined): string => {
     if (!subject) return 'Unknown'
     if (typeof subject === 'object' && subject.name) return subject.name
     if (typeof subject === 'string') return subject
@@ -163,23 +196,31 @@ export default function NoteDetailPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
-                onClick={handleLike}
-              >
-                <Heart className="h-4 w-4 mr-2" />
-                Like
-              </Button>
-              <Button
-                className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
-                onClick={handleDownload}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-violet-400 border-violet-500/50' : 'text-slate-300 hover:text-violet-400 hover:border-violet-500/50'}`}
+                  onClick={handleBookmark}
+                >
+                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                  {isBookmarked ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
+                  onClick={handleLike}
+                >
+                  <Heart className="h-4 w-4 mr-2" />
+                  Like
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
+                  onClick={handleDownload}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
           </div>
         </CardContent>
       </Card>

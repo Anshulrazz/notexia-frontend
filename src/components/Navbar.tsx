@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Bell, Search, LogOut, User, Settings } from 'lucide-react'
+import { Menu, Bell, Search, LogOut, User, Settings, Trophy, Bookmark, FileText, HelpCircle, Users, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -16,6 +16,16 @@ import {
 import { useAuthStore } from '@/store/auth.store'
 import { useGlobalStore } from '@/store/global.store'
 import { getInitials, getAvatarUrl } from '@/utils/helpers'
+import { cn } from '@/lib/utils'
+
+const navLinks = [
+  { href: '/dashboard/notes', label: 'Notes', icon: FileText },
+  { href: '/dashboard/doubts', label: 'Doubts', icon: HelpCircle },
+  { href: '/dashboard/forums', label: 'Forums', icon: Users },
+  { href: '/dashboard/blogs', label: 'Blogs', icon: BookOpen },
+  { href: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { href: '/dashboard/bookmarks', label: 'Bookmarks', icon: Bookmark },
+]
 
 export function Navbar() {
   const pathname = usePathname()
@@ -48,7 +58,30 @@ export function Navbar() {
         </Link>
 
         {isDashboard && (
-          <div className="flex-1 max-w-md hidden md:block">
+          <div className="hidden lg:flex items-center gap-1 mr-4">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-violet-500/20 text-violet-400'
+                      : 'text-slate-400 hover:text-white hover:bg-[#2a2a3e]'
+                  )}
+                >
+                  <link.icon className="h-4 w-4" />
+                  <span>{link.label}</span>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+
+        {isDashboard && (
+          <div className="flex-1 max-w-md hidden md:block lg:hidden">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
@@ -97,10 +130,12 @@ export function Navbar() {
                       Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:bg-[#2a2a3e] focus:bg-[#2a2a3e] cursor-pointer">
+                <DropdownMenuItem asChild className="hover:bg-[#2a2a3e] focus:bg-[#2a2a3e] cursor-pointer">
+                  <Link href="/dashboard/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
-                  </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-[#2a2a3e]" />
                   <DropdownMenuItem
                     onClick={logout}

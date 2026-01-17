@@ -12,6 +12,9 @@ import {
   Shield,
   User,
   X,
+  Bookmark,
+  Trophy,
+  Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,6 +28,9 @@ const navItems = [
   { href: '/dashboard/doubts', label: 'Doubts', icon: HelpCircle },
   { href: '/dashboard/forums', label: 'Forums', icon: Users },
   { href: '/dashboard/blogs', label: 'Blogs', icon: BookOpen },
+  { href: '/dashboard/bookmarks', label: 'Bookmarks', icon: Bookmark },
+  { href: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   { href: '/dashboard/profile', label: 'Profile', icon: User },
 ]
 
