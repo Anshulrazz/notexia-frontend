@@ -369,8 +369,8 @@ export default function HomePage() {
                   <h3 className="relative text-xl font-bold text-white mb-3">{feature.title}</h3>
                   <p className="relative text-slate-400 leading-relaxed">{feature.description}</p>
                   <div className="relative mt-6">
-                    <Link href="/register" className="inline-flex items-center text-violet-400 font-semibold group-hover:text-fuchsia-400 transition-colors">
-                      Get started <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <Link href={isAuthenticated ? "/dashboard" : "/register"} className="inline-flex items-center text-violet-400 font-semibold group-hover:text-fuchsia-400 transition-colors">
+                      {isAuthenticated ? 'Go to Dashboard' : 'Get started'} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
