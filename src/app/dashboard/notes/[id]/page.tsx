@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2 } from 'lucide-react'
+import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
 import { noteService, Note } from '@/services/note.service'
+import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
@@ -17,6 +18,8 @@ export default function NoteDetailPage() {
   const router = useRouter()
   const [note, setNote] = useState<Note | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null)
 
   useEffect(() => {
     if (params.id) {
@@ -29,6 +32,11 @@ export default function NoteDetailPage() {
     try {
       const data = await noteService.getNote(id)
       setNote(data)
+      try {
+        const bookmarkCheck = await bookmarkService.check('note', id)
+        setIsBookmarked(bookmarkCheck.isBookmarked)
+        setBookmarkId(bookmarkCheck.bookmarkId)
+      } catch {}
     } catch {
       toast.error('Failed to load note')
       router.push('/dashboard/notes')
@@ -57,6 +65,25 @@ export default function NoteDetailPage() {
       toast.success('Download started')
     } catch {
       toast.error('Failed to download')
+    }
+  }
+
+  const handleBookmark = async () => {
+    if (!note) return
+    try {
+      if (isBookmarked && bookmarkId) {
+        await bookmarkService.remove(bookmarkId)
+        setIsBookmarked(false)
+        setBookmarkId(null)
+        toast.success('Bookmark removed')
+      } else {
+        const result = await bookmarkService.add('note', note._id)
+        setIsBookmarked(true)
+        setBookmarkId(result.data._id)
+        toast.success('Bookmarked!')
+      }
+    } catch {
+      toast.error('Failed to update bookmark')
     }
   }
 
@@ -112,7 +139,17 @@ export default function NoteDetailPage() {
             <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30 mb-4">
               {getSubjectName(note.subject)}
             </Badge>
-            <ReportButton contentType="note" contentId={note._id} />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 ${isBookmarked ? 'text-violet-400' : 'text-slate-400'} hover:text-violet-400 hover:bg-violet-500/10`}
+                onClick={handleBookmark}
+              >
+                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+              </Button>
+              <ReportButton contentType="note" contentId={note._id} />
+            </div>
           </div>
           <CardTitle className="text-2xl text-white">{note.title}</CardTitle>
         </CardHeader>
