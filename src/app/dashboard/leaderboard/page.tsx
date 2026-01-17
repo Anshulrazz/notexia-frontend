@@ -101,20 +101,20 @@ export default function LeaderboardPage() {
                         <TrendingUp className="h-3 w-3 mr-1" />
                         {user.points.toLocaleString()} points
                       </Badge>
-                      <div className="grid grid-cols-3 gap-2 text-center pt-4 border-t border-[#2a2a3e]">
-                        <div>
-                          <p className="text-lg font-bold text-white">{user.stats?.notesCount || 0}</p>
-                          <p className="text-xs text-slate-500">Notes</p>
+                        <div className="grid grid-cols-3 gap-2 text-center pt-4 border-t border-[#2a2a3e]">
+                          <div>
+                            <p className="text-lg font-bold text-white">{user.stats?.notesCreated || 0}</p>
+                            <p className="text-xs text-slate-500">Notes</p>
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-white">{user.stats?.doubtsAnswered || 0}</p>
+                            <p className="text-xs text-slate-500">Answers</p>
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-white">{user.stats?.blogsCreated || 0}</p>
+                            <p className="text-xs text-slate-500">Blogs</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-lg font-bold text-white">{user.stats?.doubtsAnswered || 0}</p>
-                          <p className="text-xs text-slate-500">Answers</p>
-                        </div>
-                        <div>
-                          <p className="text-lg font-bold text-white">{user.stats?.blogsCount || 0}</p>
-                          <p className="text-xs text-slate-500">Blogs</p>
-                        </div>
-                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -139,12 +139,12 @@ export default function LeaderboardPage() {
                                 {getInitials(user.name)}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <p className="text-white font-medium">{user.name}</p>
-                              <p className="text-xs text-slate-500">
-                                {user.stats?.notesCount || 0} notes • {user.stats?.doubtsAnswered || 0} answers • {user.stats?.blogsCount || 0} blogs
-                              </p>
-                            </div>
+                              <div>
+                                <p className="text-white font-medium">{user.name}</p>
+                                <p className="text-xs text-slate-500">
+                                  {user.stats?.notesCreated || 0} notes • {user.stats?.doubtsAnswered || 0} answers • {user.stats?.blogsCreated || 0} blogs
+                                </p>
+                              </div>
                           </div>
                           <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/30">
                             {user.points.toLocaleString()} pts

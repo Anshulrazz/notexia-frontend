@@ -7,9 +7,11 @@ export interface LeaderboardUser {
   points: number
   rank: number
   stats: {
-    notesCount: number
+    notesCreated: number
+    doubtsCreated: number
     doubtsAnswered: number
-    blogsCount: number
+    blogsCreated: number
+    forumThreads: number
   }
 }
 
