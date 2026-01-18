@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Search, ThumbsUp, Check, Sparkles, Loader2, MessageSquare } from 'lucide-react'
+import { Plus, Search, ThumbsUp, Check, Sparkles, Loader2, MessageSquare, Brain } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -37,12 +37,16 @@ export default function DoubtsPage() {
   const [aiHint, setAiHint] = useState('')
   const [isGettingHint, setIsGettingHint] = useState(false)
   const [hintForDoubtId, setHintForDoubtId] = useState<string | null>(null)
+  const [aiAnswer, setAiAnswer] = useState('')
+  const [isGettingAnswer, setIsGettingAnswer] = useState(false)
+  const [answerForDoubtId, setAnswerForDoubtId] = useState<string | null>(null)
 
   const [newDoubt, setNewDoubt] = useState({
     question: '',
     description: '',
     tags: '',
   })
+  const [isGeneratingTags, setIsGeneratingTags] = useState(false)
 
   useEffect(() => {
     loadDoubts()
@@ -159,6 +163,35 @@ export default function DoubtsPage() {
     }
   }
 
+  const handleGetAIAnswer = async (doubt: Doubt) => {
+    setIsGettingAnswer(true)
+    setAnswerForDoubtId(doubt._id)
+    try {
+      const response = await aiService.getDoubtAnswer(doubt.question, doubt.description)
+      setAiAnswer(response.answer)
+    } catch {
+      toast.error('Failed to get AI answer')
+    } finally {
+      setIsGettingAnswer(false)
+    }
+  }
+
+  const handleGenerateTags = async () => {
+    if (!newDoubt.question && !newDoubt.description) {
+      toast.error('Please enter question or description first')
+      return
+    }
+    setIsGeneratingTags(true)
+    try {
+      const response = await aiService.generateTags(`${newDoubt.question} ${newDoubt.description}`)
+      setNewDoubt({ ...newDoubt, tags: response.tags.join(', ') })
+    } catch {
+      toast.error('Failed to generate tags')
+    } finally {
+      setIsGeneratingTags(false)
+    }
+  }
+
   const parseTags = (tags: string | string[] | { _id: string; name: string }[]): string[] => {
     if (!tags) return []
     if (Array.isArray(tags)) {
@@ -209,14 +242,27 @@ export default function DoubtsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tags (comma separated)</Label>
-                <Input
-                  value={newDoubt.tags}
-                  onChange={(e) => setNewDoubt({ ...newDoubt, tags: e.target.value })}
-                  placeholder="e.g., Python, DSA, Trees"
-                  className="bg-[#12121a] border-[#2a2a3e] text-white"
-                />
-              </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Tags (comma separated)</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-400 hover:text-amber-300 h-6 px-2"
+                      onClick={handleGenerateTags}
+                      disabled={isGeneratingTags}
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      {isGeneratingTags ? 'Generating...' : 'AI Tags'}
+                    </Button>
+                  </div>
+                  <Input
+                    value={newDoubt.tags}
+                    onChange={(e) => setNewDoubt({ ...newDoubt, tags: e.target.value })}
+                    placeholder="e.g., Python, DSA, Trees"
+                    className="bg-[#12121a] border-[#2a2a3e] text-white"
+                  />
+                </div>
               <Button
                 onClick={handleCreateDoubt}
                 disabled={isCreating}
@@ -292,26 +338,36 @@ export default function DoubtsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-400 hover:text-amber-400"
-                      onClick={() => handleGetHint(doubt)}
-                      disabled={isGettingHint && hintForDoubtId === doubt._id}
-                    >
-                      <Sparkles className="h-4 w-4 mr-1" />
-                      AI Hint
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-400 hover:text-violet-400"
-                      onClick={() => setSelectedDoubt(doubt)}
-                    >
-                      <MessageSquare className="h-4 w-4 mr-1" />
-                      {doubt.answers?.length || 0} Answers
-                    </Button>
-                  </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-slate-400 hover:text-amber-400"
+                        onClick={() => handleGetHint(doubt)}
+                        disabled={isGettingHint && hintForDoubtId === doubt._id}
+                      >
+                        <Sparkles className="h-4 w-4 mr-1" />
+                        AI Hint
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-slate-400 hover:text-violet-400"
+                        onClick={() => handleGetAIAnswer(doubt)}
+                        disabled={isGettingAnswer && answerForDoubtId === doubt._id}
+                      >
+                        <Brain className="h-4 w-4 mr-1" />
+                        AI Answer
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-slate-400 hover:text-violet-400"
+                        onClick={() => setSelectedDoubt(doubt)}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        {doubt.answers?.length || 0} Answers
+                      </Button>
+                    </div>
                 </div>
 
                 {aiHint && hintForDoubtId === doubt._id && (
@@ -320,6 +376,16 @@ export default function DoubtsPage() {
                       <Sparkles className="h-4 w-4 inline mr-2" />
                       {aiHint}
                     </p>
+                  </div>
+                )}
+
+                {aiAnswer && answerForDoubtId === doubt._id && (
+                  <div className="mt-4 p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Brain className="h-4 w-4 text-violet-400" />
+                      <span className="text-sm font-semibold text-violet-400">AI Generated Answer</span>
+                    </div>
+                    <div className="text-sm text-violet-200 whitespace-pre-wrap">{aiAnswer}</div>
                   </div>
                 )}
               </CardContent>

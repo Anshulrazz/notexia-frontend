@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Heart, Loader2 } from 'lucide-react'
+import { Plus, Search, Heart, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -19,6 +19,7 @@ import {
 import { Editor } from '@/components/Editor'
 import { ReportButton } from '@/components/ReportButton'
 import { blogService, Blog } from '@/services/blog.service'
+import { aiService } from '@/services/ai.service'
 import { formatRelativeTime, getInitials, truncateText, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
@@ -34,6 +35,7 @@ export default function BlogsPage() {
     content: '',
     tags: '',
   })
+  const [isGeneratingTags, setIsGeneratingTags] = useState(false)
 
   useEffect(() => {
     loadBlogs()
@@ -88,6 +90,22 @@ export default function BlogsPage() {
     }
   }
 
+  const handleGenerateTags = async () => {
+    if (!newBlog.title && !newBlog.content) {
+      toast.error('Please enter title or content first')
+      return
+    }
+    setIsGeneratingTags(true)
+    try {
+      const response = await aiService.generateTags(`${newBlog.title} ${newBlog.content}`)
+      setNewBlog({ ...newBlog, tags: response.tags.join(', ') })
+    } catch {
+      toast.error('Failed to generate tags')
+    } finally {
+      setIsGeneratingTags(false)
+    }
+  }
+
   const parseTags = (tags: string | string[] | { _id: string; name: string }[]): string[] => {
     if (!tags) return []
     if (Array.isArray(tags)) {
@@ -138,14 +156,27 @@ export default function BlogsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tags (comma separated)</Label>
-                <Input
-                  value={newBlog.tags}
-                  onChange={(e) => setNewBlog({ ...newBlog, tags: e.target.value })}
-                  placeholder="e.g., Technology, Learning, Tips"
-                  className="bg-[#12121a] border-[#2a2a3e] text-white"
-                />
-              </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Tags (comma separated)</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-400 hover:text-amber-300 h-6 px-2"
+                      onClick={handleGenerateTags}
+                      disabled={isGeneratingTags}
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      {isGeneratingTags ? 'Generating...' : 'AI Tags'}
+                    </Button>
+                  </div>
+                  <Input
+                    value={newBlog.tags}
+                    onChange={(e) => setNewBlog({ ...newBlog, tags: e.target.value })}
+                    placeholder="e.g., Technology, Learning, Tips"
+                    className="bg-[#12121a] border-[#2a2a3e] text-white"
+                  />
+                </div>
               <Button
                 onClick={handleCreateBlog}
                 disabled={isCreating}

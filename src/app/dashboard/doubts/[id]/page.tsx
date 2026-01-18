@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, ThumbsUp, Check, Sparkles, Calendar, Tag, MessageSquare, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
+import { ArrowLeft, ThumbsUp, Check, Sparkles, Calendar, Tag, MessageSquare, Loader2, Bookmark, BookmarkCheck, Brain } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +27,8 @@ export default function DoubtDetailPage() {
   const [isAnswering, setIsAnswering] = useState(false)
   const [aiHint, setAiHint] = useState('')
   const [isGettingHint, setIsGettingHint] = useState(false)
+  const [aiAnswer, setAiAnswer] = useState('')
+  const [isGettingAnswer, setIsGettingAnswer] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [bookmarkId, setBookmarkId] = useState<string | null>(null)
 
@@ -138,6 +140,19 @@ export default function DoubtDetailPage() {
     }
   }
 
+  const handleGetAIAnswer = async () => {
+    if (!doubt) return
+    setIsGettingAnswer(true)
+    try {
+      const response = await aiService.getDoubtAnswer(doubt.question, doubt.description)
+      setAiAnswer(response.answer)
+    } catch {
+      toast.error('Failed to get AI answer')
+    } finally {
+      setIsGettingAnswer(false)
+    }
+  }
+
   const parseTags = (tags: string | string[] | { _id: string; name: string }[]): string[] => {
     if (!tags) return []
     if (Array.isArray(tags)) {
@@ -224,24 +239,33 @@ export default function DoubtDetailPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-blue-400 border-blue-500/50' : 'text-slate-300 hover:text-blue-400 hover:border-blue-500/50'}`}
-                  onClick={handleBookmark}
-                >
-                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
-                  {isBookmarked ? 'Saved' : 'Save'}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                  onClick={handleGetHint}
-                  disabled={isGettingHint}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
-                </Button>
-              </div>
+                  <Button
+                    variant="outline"
+                    className={`border-[#2a2a3e] ${isBookmarked ? 'text-blue-400 border-blue-500/50' : 'text-slate-300 hover:text-blue-400 hover:border-blue-500/50'}`}
+                    onClick={handleBookmark}
+                  >
+                    {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                    {isBookmarked ? 'Saved' : 'Save'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                    onClick={handleGetHint}
+                    disabled={isGettingHint}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+                    onClick={handleGetAIAnswer}
+                    disabled={isGettingAnswer}
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    {isGettingAnswer ? 'Generating...' : 'AI Answer'}
+                  </Button>
+                </div>
             </div>
 
           {aiHint && (
@@ -250,6 +274,16 @@ export default function DoubtDetailPage() {
                 <Sparkles className="h-4 w-4 inline mr-2" />
                 {aiHint}
               </p>
+            </div>
+          )}
+
+          {aiAnswer && (
+            <div className="p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain className="h-4 w-4 text-violet-400" />
+                <span className="text-sm font-semibold text-violet-400">AI Generated Answer</span>
+              </div>
+              <div className="text-sm text-violet-200 whitespace-pre-wrap">{aiAnswer}</div>
             </div>
           )}
         </CardContent>

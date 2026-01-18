@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Download, Heart, Filter, Loader2 } from 'lucide-react'
+import { Plus, Search, Download, Heart, Filter, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label'
 import { FileUpload } from '@/components/FileUpload'
 import { ReportButton } from '@/components/ReportButton'
 import { noteService, Note } from '@/services/note.service'
+import { aiService } from '@/services/ai.service'
 import { SUBJECTS } from '@/utils/constants'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
@@ -46,6 +47,7 @@ export default function NotesPage() {
     type: 'note' as 'note' | 'project',
     file: null as File | null,
   })
+  const [isGeneratingTags, setIsGeneratingTags] = useState(false)
 
   useEffect(() => {
     loadNotes()
@@ -116,6 +118,22 @@ export default function NotesPage() {
     }
   }
 
+  const handleGenerateTags = async () => {
+    if (!newNote.title && !newNote.description) {
+      toast.error('Please enter title or description first')
+      return
+    }
+    setIsGeneratingTags(true)
+    try {
+      const response = await aiService.generateTags(`${newNote.title} ${newNote.description} ${newNote.subject}`)
+      setNewNote({ ...newNote, tags: response.tags.join(', ') })
+    } catch {
+      toast.error('Failed to generate tags')
+    } finally {
+      setIsGeneratingTags(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -160,14 +178,27 @@ export default function NotesPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tags (comma separated)</Label>
-                <Input
-                  value={newNote.tags}
-                  onChange={(e) => setNewNote({ ...newNote, tags: e.target.value })}
-                  placeholder="e.g., DSA, Algorithms, Trees"
-                  className="bg-[#12121a] border-[#2a2a3e] text-white"
-                />
-              </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Tags (comma separated)</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-400 hover:text-amber-300 h-6 px-2"
+                      onClick={handleGenerateTags}
+                      disabled={isGeneratingTags}
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      {isGeneratingTags ? 'Generating...' : 'AI Tags'}
+                    </Button>
+                  </div>
+                  <Input
+                    value={newNote.tags}
+                    onChange={(e) => setNewNote({ ...newNote, tags: e.target.value })}
+                    placeholder="e.g., DSA, Algorithms, Trees"
+                    className="bg-[#12121a] border-[#2a2a3e] text-white"
+                  />
+                </div>
               <div className="space-y-2">
                 <Label>File *</Label>
                 <FileUpload

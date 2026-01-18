@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Heart, Calendar, Eye, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
+import { ArrowLeft, Heart, Calendar, Eye, Loader2, Bookmark, BookmarkCheck, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
 import { blogService, Blog } from '@/services/blog.service'
 import { bookmarkService } from '@/services/bookmark.service'
+import { aiService } from '@/services/ai.service'
 import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 
@@ -20,6 +21,8 @@ export default function BlogDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [bookmarkId, setBookmarkId] = useState<string | null>(null)
+  const [aiSummary, setAiSummary] = useState('')
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -78,6 +81,19 @@ export default function BlogDetailPage() {
       toast.success('Liked!')
     } catch {
       toast.error('Failed to like blog')
+    }
+  }
+
+  const handleGenerateSummary = async () => {
+    if (!blog) return
+    setIsGeneratingSummary(true)
+    try {
+      const response = await aiService.getBlogSummary(blog.content)
+      setAiSummary(response.summary)
+    } catch {
+      toast.error('Failed to generate summary')
+    } finally {
+      setIsGeneratingSummary(false)
     }
   }
 
@@ -173,24 +189,43 @@ export default function BlogDetailPage() {
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
 
-            <div className="flex items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
-              <Button
-                variant="outline"
-                className={`border-[#2a2a3e] ${isBookmarked ? 'text-emerald-400 border-emerald-500/50' : 'text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50'}`}
-                onClick={handleBookmark}
-              >
-                {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
-                {isBookmarked ? 'Saved' : 'Save'}
-              </Button>
-              <Button
-                variant="outline"
-                className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10"
-                onClick={handleLike}
-              >
-                <Heart className="h-4 w-4 mr-2" />
-                Like ({blog.likes?.length || 0})
-              </Button>
-            </div>
+              <div className="flex items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
+                <Button
+                  variant="outline"
+                  className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                  onClick={handleGenerateSummary}
+                  disabled={isGeneratingSummary}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  {isGeneratingSummary ? 'Generating...' : 'AI Summary'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-emerald-400 border-emerald-500/50' : 'text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50'}`}
+                  onClick={handleBookmark}
+                >
+                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                  {isBookmarked ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10"
+                  onClick={handleLike}
+                >
+                  <Heart className="h-4 w-4 mr-2" />
+                  Like ({blog.likes?.length || 0})
+                </Button>
+              </div>
+
+            {aiSummary && (
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-amber-400" />
+                  <span className="text-sm font-semibold text-amber-400">AI Summary</span>
+                </div>
+                <p className="text-sm text-amber-200">{aiSummary}</p>
+              </div>
+            )}
         </CardContent>
       </Card>
     </div>
