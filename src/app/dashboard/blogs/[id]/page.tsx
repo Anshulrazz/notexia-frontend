@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import { blogService, Blog } from '@/services/blog.service'
 import { bookmarkService } from '@/services/bookmark.service'
 import { aiService } from '@/services/ai.service'
@@ -184,10 +185,9 @@ export default function BlogDetailPage() {
             </div>
           </div>
 
-          <div
-            className="prose prose-invert max-w-none text-slate-300 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
-          />
+          <div className="text-slate-300 leading-relaxed">
+            <MarkdownRenderer content={blog.content} />
+          </div>
 
               <div className="flex items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
                 <Button
@@ -219,11 +219,13 @@ export default function BlogDetailPage() {
 
             {aiSummary && (
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 mt-4">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="h-4 w-4 text-amber-400" />
                   <span className="text-sm font-semibold text-amber-400">AI Summary</span>
                 </div>
-                <p className="text-sm text-amber-200">{aiSummary}</p>
+                <div className="text-sm text-amber-100">
+                  <MarkdownRenderer content={aiSummary} className="prose-sm" />
+                </div>
               </div>
             )}
         </CardContent>

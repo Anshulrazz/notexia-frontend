@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import { noteService, Note } from '@/services/note.service'
 import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
@@ -151,7 +152,9 @@ export default function NoteDetailPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {note.description && (
-            <p className="text-slate-300 leading-relaxed">{note.description}</p>
+            <div className="text-slate-300 leading-relaxed">
+              <MarkdownRenderer content={note.description} />
+            </div>
           )}
 
           <div className="flex flex-wrap gap-2">

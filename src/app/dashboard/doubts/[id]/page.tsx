@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { ReportButton } from '@/components/ReportButton'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import { doubtService, Doubt } from '@/services/doubt.service'
 import { bookmarkService } from '@/services/bookmark.service'
 import { aiService } from '@/services/ai.service'
@@ -270,20 +271,25 @@ export default function DoubtDetailPage() {
 
           {aiHint && (
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <p className="text-sm text-amber-200">
-                <Sparkles className="h-4 w-4 inline mr-2" />
-                {aiHint}
-              </p>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-4 w-4 text-amber-400" />
+                <span className="text-sm font-semibold text-amber-400">AI Hint</span>
+              </div>
+              <div className="text-sm text-amber-100">
+                <MarkdownRenderer content={aiHint} className="prose-sm" />
+              </div>
             </div>
           )}
 
           {aiAnswer && (
             <div className="p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <Brain className="h-4 w-4 text-violet-400" />
                 <span className="text-sm font-semibold text-violet-400">AI Generated Answer</span>
               </div>
-              <div className="text-sm text-violet-200 whitespace-pre-wrap">{aiAnswer}</div>
+              <div className="text-sm text-violet-100">
+                <MarkdownRenderer content={aiAnswer} className="prose-sm" />
+              </div>
             </div>
           )}
         </CardContent>
