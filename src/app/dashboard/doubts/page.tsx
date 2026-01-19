@@ -49,18 +49,35 @@ export default function DoubtsPage() {
   })
   const [isGeneratingTags, setIsGeneratingTags] = useState(false)
 
+  const [allDoubts, setAllDoubts] = useState<Doubt[]>([])
+
   useEffect(() => {
     loadDoubts()
-  }, [searchQuery])
+  }, [])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setDoubts(allDoubts)
+    } else {
+      const query = searchQuery.toLowerCase()
+      const filtered = allDoubts.filter(doubt => {
+        const questionMatch = doubt.question?.toLowerCase().includes(query)
+        const tags = parseTags(doubt.tags)
+        const tagMatch = tags.some(tag => tag.toLowerCase().includes(query))
+        return questionMatch || tagMatch
+      })
+      setDoubts(filtered)
+    }
+  }, [searchQuery, allDoubts])
 
   const loadDoubts = async () => {
     setIsLoading(true)
     try {
-      const params: { search?: string } = {}
-      if (searchQuery) params.search = searchQuery
-      const data = await doubtService.getDoubts(params)
+      const data = await doubtService.getDoubts()
+      setAllDoubts(data)
       setDoubts(data)
     } catch {
+      setAllDoubts([])
       setDoubts([])
     } finally {
       setIsLoading(false)
