@@ -67,15 +67,30 @@ interface AcceptResponse {
 export const doubtService = {
   async getDoubts(params?: { subject?: string; search?: string; solved?: boolean }): Promise<Doubt[]> {
     const { data } = await api.get('/doubts', { params })
-    if (Array.isArray(data)) return data
-    if (data.doubts) return data.doubts
-    if (data.data) return data.data
-    return []
+    let doubts: Doubt[] = []
+    if (Array.isArray(data)) doubts = data
+    else if (data.doubts) doubts = data.doubts
+    else if (data.data) doubts = data.data
+    
+    return doubts.map(doubt => ({
+      ...doubt,
+      answers: (doubt.answers || []).map(answer => ({
+        ...answer,
+        author: answer.author || answer.user,
+      }))
+    }))
   },
 
   async getDoubt(doubtId: string): Promise<Doubt> {
     const { data } = await api.get(`/doubts/${doubtId}`)
-    return data.doubt || data
+    const doubt = data.doubt || data
+    return {
+      ...doubt,
+      answers: (doubt.answers || []).map((answer: Answer) => ({
+        ...answer,
+        author: answer.author || answer.user,
+      }))
+    }
   },
 
   async createDoubt(payload: CreateDoubtPayload): Promise<DoubtResponse> {
@@ -95,7 +110,10 @@ export const doubtService = {
     const { data } = await api.post(`/doubts/${doubtId}/answer`, { text })
     return {
       success: data.success,
-      answers: data.answers,
+      answers: (data.answers || []).map((answer: Answer) => ({
+        ...answer,
+        author: answer.author || answer.user,
+      })),
     }
   },
 
