@@ -313,9 +313,11 @@ export default function DoubtsPage() {
                 </div>
 
                 <Link href={`/dashboard/doubts/${doubt._id}`}>
-                    <h3 className="text-lg font-semibold text-white mb-2 hover:text-violet-400 transition-colors">{doubt.question}</h3>
-                  </Link>
-                <p className="text-sm text-slate-400 mb-4">{doubt.description}</p>
+                      <h3 className="text-lg font-semibold text-white mb-2 hover:text-violet-400 transition-colors">{doubt.question}</h3>
+                    </Link>
+                  <div className="text-sm text-slate-400 mb-4 line-clamp-3">
+                    <MarkdownRenderer content={doubt.description || ''} className="prose-sm" />
+                  </div>
 
                 <div className="flex flex-wrap gap-1 mb-4">
                   {parseTags(doubt.tags).map((tag) => (

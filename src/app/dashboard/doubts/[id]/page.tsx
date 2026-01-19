@@ -210,8 +210,10 @@ export default function DoubtDetailPage() {
           </div>
           <CardTitle className="text-2xl text-white mt-2">{doubt.question}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-slate-300 leading-relaxed">{doubt.description}</p>
+          <CardContent className="space-y-6">
+            <div className="text-slate-300 leading-relaxed">
+              <MarkdownRenderer content={doubt.description || ''} />
+            </div>
 
           <div className="flex flex-wrap gap-2">
             {parseTags(doubt.tags).map((tag) => (
