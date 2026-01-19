@@ -261,10 +261,10 @@ export default function BlogsPage() {
 
                   <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-7 w-7">
-                        <AvatarImage src={getAvatarUrl(blog.author?.avatar)} />
-                        <AvatarFallback className="bg-emerald-500/20 text-emerald-400 text-xs">
-                          {getInitials(blog.author?.name || 'U')}
+                    <Avatar className="h-7 w-7">
+                        <AvatarImage src={`http://localhost:5001${blog.author?.avatar}`} />
+                        <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
+                          {getInitials(blog?.author?.name || 'U')}
                         </AvatarFallback>
                       </Avatar>
                       <div>

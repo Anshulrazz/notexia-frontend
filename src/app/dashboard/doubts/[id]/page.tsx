@@ -189,7 +189,7 @@ export default function DoubtDetailPage() {
   const isAuthor = doubt.author?._id === user?.id || doubt.author?.id === user?.id
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <Button variant="ghost" onClick={() => router.push('/dashboard/doubts')} className="text-slate-400 hover:text-white">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Doubts

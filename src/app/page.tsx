@@ -546,6 +546,8 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <Link href="/docs" className="hover:text-violet-400 transition-colors">Documentation</Link>
+              <Link href="/terms" className="hover:text-violet-400 transition-colors">Terms</Link>
+              <Link href="/privacy" className="hover:text-violet-400 transition-colors">Privacy</Link>
               {isAuthenticated ? (
                 <Link href="/dashboard" className="hover:text-violet-400 transition-colors">Dashboard</Link>
               ) : (

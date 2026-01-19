@@ -137,7 +137,10 @@ export function Sidebar() {
                 size="sm"
                 className="mt-3 w-full border-violet-500/30 text-violet-400 hover:bg-violet-500/10 hover:text-violet-300"
               >
+                <Link
+                href="/docs">
                 View Docs
+                </Link>
               </Button>
             </div>
           </div>

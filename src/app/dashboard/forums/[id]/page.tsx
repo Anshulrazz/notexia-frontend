@@ -140,7 +140,7 @@ export default function ForumDetailPage() {
   const threads = forum.threads || []
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <Button variant="ghost" onClick={() => router.push('/dashboard/forums')} className="text-slate-400 hover:text-white">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Forums
