@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { ReportButton } from '@/components/ReportButton'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import { doubtService, Doubt } from '@/services/doubt.service'
 import { aiService } from '@/services/ai.service'
 import { formatRelativeTime, getInitials, getAvatarUrl } from '@/utils/helpers'
@@ -371,23 +372,28 @@ export default function DoubtsPage() {
                 </div>
 
                 {aiHint && hintForDoubtId === doubt._id && (
-                  <div className="mt-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                    <p className="text-sm text-amber-200">
-                      <Sparkles className="h-4 w-4 inline mr-2" />
-                      {aiHint}
-                    </p>
-                  </div>
-                )}
-
-                {aiAnswer && answerForDoubtId === doubt._id && (
-                  <div className="mt-4 p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Brain className="h-4 w-4 text-violet-400" />
-                      <span className="text-sm font-semibold text-violet-400">AI Generated Answer</span>
+                    <div className="mt-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="h-4 w-4 text-amber-400" />
+                        <span className="text-sm font-semibold text-amber-400">AI Hint</span>
+                      </div>
+                      <div className="text-sm text-amber-100">
+                        <MarkdownRenderer content={aiHint} className="prose-sm" />
+                      </div>
                     </div>
-                    <div className="text-sm text-violet-200 whitespace-pre-wrap">{aiAnswer}</div>
-                  </div>
-                )}
+                  )}
+
+                  {aiAnswer && answerForDoubtId === doubt._id && (
+                    <div className="mt-4 p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="h-4 w-4 text-violet-400" />
+                        <span className="text-sm font-semibold text-violet-400">AI Generated Answer</span>
+                      </div>
+                      <div className="text-sm text-violet-100">
+                        <MarkdownRenderer content={aiAnswer} className="prose-sm" />
+                      </div>
+                    </div>
+                  )}
               </CardContent>
             </Card>
           ))}
