@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -78,12 +79,10 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">N</span>
-              </div>
-              <span className="text-2xl font-bold text-white">Notexia</span>
-            </Link>
+<Link href="/" className="inline-flex items-center gap-2 mb-6">
+                <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl" />
+                <span className="text-2xl font-bold text-white">Notexia</span>
+              </Link>
             <h1 className="text-2xl font-bold text-white">Welcome back</h1>
             <p className="text-slate-400 mt-2">Sign in to your account to continue</p>
           </div>

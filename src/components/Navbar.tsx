@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, Bell, Search, LogOut, User, Settings, Trophy, Bookmark, FileText, HelpCircle, Users, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -48,14 +49,12 @@ export function Navbar() {
           </Button>
         )}
 
-        <Link href="/" className="flex items-center gap-2 mr-6">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">N</span>
-          </div>
-          <span className="font-semibold text-lg text-white tracking-tight hidden sm:block">
-            Notexia
-          </span>
-        </Link>
+<Link href="/" className="flex items-center gap-2 mr-6">
+            <Image src="/logo.png" alt="Notexia Logo" width={32} height={32} className="rounded-lg" />
+            <span className="font-semibold text-lg text-white tracking-tight hidden sm:block">
+              Notexia
+            </span>
+          </Link>
 
         {isDashboard && (
           <div className="hidden lg:flex items-center gap-1 mr-4">

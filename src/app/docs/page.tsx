@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, FileText, HelpCircle, Users, BookOpen, Brain, Sparkles, Shield, Zap, Search, MessageSquare, Download, Share2, Star, Trophy, Settings, Bell, Bookmark, Flag, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -225,12 +226,10 @@ export default function DocsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="text-white font-bold text-lg">N</span>
-                </div>
-                <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
-              </Link>
+<Link href="/" className="flex items-center gap-2 group">
+                  <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
+                </Link>
               <span className="text-slate-500">/</span>
               <span className="text-slate-300 font-medium">Documentation</span>
             </div>

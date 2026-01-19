@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { FileText, HelpCircle, Users, BookOpen, ArrowRight, Sparkles, Zap, Star, Rocket, Brain, Target, Trophy, ChevronDown, Play, CheckCircle2, Globe, Shield, Clock, LayoutDashboard, Search, MessageSquare, Download, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
@@ -203,12 +204,10 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b border-violet-500/20 bg-[#0a0a0f]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center animate-pulse-glow group-hover:scale-110 transition-transform">
-                <span className="text-white font-bold text-lg">N</span>
-              </div>
-              <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
-            </Link>
+<Link href="/" className="flex items-center gap-2 group">
+                <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl animate-pulse-glow group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
+              </Link>
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <Button asChild className="relative bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 animate-pulse-glow">
@@ -538,12 +537,10 @@ export default function HomePage() {
       <footer className="border-t border-violet-500/20 py-12 bg-[#0a0a0f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-                <span className="text-white font-bold">N</span>
+<div className="flex items-center gap-3">
+                <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl" />
+                <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
-            </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <Link href="/docs" className="hover:text-violet-400 transition-colors">Documentation</Link>
               <Link href="/terms" className="hover:text-violet-400 transition-colors">Terms</Link>

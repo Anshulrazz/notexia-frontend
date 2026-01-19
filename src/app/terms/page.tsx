@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -11,9 +12,7 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="text-white font-bold text-lg">N</span>
-              </div>
+              <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl group-hover:scale-110 transition-transform" />
               <span className="font-bold text-2xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
             </Link>
             <Button variant="ghost" asChild className="text-slate-300 hover:text-white hover:bg-violet-500/20">
