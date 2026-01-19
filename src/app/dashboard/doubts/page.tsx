@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, ThumbsUp, Check, Sparkles, Loader2, MessageSquare, Brain } from 'lucide-react'
+import { Plus, ThumbsUp, Check, Sparkles, Loader2, MessageSquare, Brain, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SearchBar } from '@/components/SearchBar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -278,12 +277,25 @@ export default function DoubtsPage() {
         </Dialog>
       </div>
 
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search doubts by question, description, or tags..."
-          isLoading={isLoading}
-        />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by question or tags..."
+            className="pl-10 pr-10 bg-[#1e1e2e] border-[#2a2a3e] text-white placeholder:text-slate-500 focus:border-blue-500/50"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">

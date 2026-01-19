@@ -131,16 +131,11 @@ export default function BlogDetailPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <Button variant="ghost" onClick={() => router.push('/dashboard/blogs')} className="text-slate-400 hover:text-white">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blogs
       </Button>
-
-      <div className="h-48 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl flex items-center justify-center">
-        <span className="text-8xl font-bold text-emerald-500/30">{blog.title[0]}</span>
-      </div>
-
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between">

@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Trophy, Medal, Crown, TrendingUp, Loader2 } from 'lucide-react'
+import { Trophy, Medal, Crown, TrendingUp, Loader2, Search, X } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SearchBar } from '@/components/SearchBar'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { getInitials, getAvatarUrl } from '@/utils/helpers'
 import { leaderboardService, LeaderboardUser } from '@/services/leaderboard.service'
 
@@ -69,12 +70,25 @@ export default function LeaderboardPage() {
         <p className="text-slate-400 mt-1">Top contributors in the community</p>
         </div>
 
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search users by name..."
-          isLoading={isLoading}
-        />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by user name..."
+            className="pl-10 pr-10 bg-[#1e1e2e] border-[#2a2a3e] text-white placeholder:text-slate-500 focus:border-yellow-500/50"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
 
       <Tabs value={period} onValueChange={(v) => setPeriod(v as 'all' | 'month' | 'week')} className="w-full">
         <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e]">
