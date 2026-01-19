@@ -545,6 +545,7 @@ export default function HomePage() {
               <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
+              <Link href="/docs" className="hover:text-violet-400 transition-colors">Documentation</Link>
               {isAuthenticated ? (
                 <Link href="/dashboard" className="hover:text-violet-400 transition-colors">Dashboard</Link>
               ) : (
