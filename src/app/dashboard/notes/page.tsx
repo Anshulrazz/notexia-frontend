@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Download, Heart, Filter, Loader2, Sparkles } from 'lucide-react'
+import { Plus, Download, Heart, Filter, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SearchBar } from '@/components/SearchBar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -227,15 +228,13 @@ export default function NotesPage() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-          <Input
+          <SearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notes..."
-            className="pl-10 bg-[#1e1e2e] border-[#2a2a3e] text-white"
+            onChange={setSearchQuery}
+            placeholder="Search notes by title, subject, or tags..."
+            className="flex-1"
+            isLoading={isLoading}
           />
-        </div>
         <Select value={selectedSubject} onValueChange={setSelectedSubject}>
           <SelectTrigger className="w-full sm:w-[200px] bg-[#1e1e2e] border-[#2a2a3e] text-white">
             <Filter className="h-4 w-4 mr-2" />

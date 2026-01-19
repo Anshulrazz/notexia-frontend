@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Trophy, Medal, Crown, TrendingUp, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SearchBar } from '@/components/SearchBar'
 import { getInitials, getAvatarUrl } from '@/utils/helpers'
 import { leaderboardService, LeaderboardUser } from '@/services/leaderboard.service'
 
@@ -13,6 +14,7 @@ export default function LeaderboardPage() {
   const [users, setUsers] = useState<LeaderboardUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [period, setPeriod] = useState<'all' | 'month' | 'week'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     loadLeaderboard()
@@ -29,6 +31,12 @@ export default function LeaderboardPage() {
       setIsLoading(false)
     }
   }
+
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery) return users
+    const query = searchQuery.toLowerCase()
+    return users.filter(user => user.name.toLowerCase().includes(query))
+  }, [users, searchQuery])
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -48,8 +56,8 @@ export default function LeaderboardPage() {
     }
   }
 
-  const topThree = users.slice(0, 3)
-  const rest = users.slice(3)
+  const topThree = filteredUsers.slice(0, 3)
+  const rest = filteredUsers.slice(3)
 
   return (
     <div className="space-y-6">
@@ -59,7 +67,14 @@ export default function LeaderboardPage() {
           Leaderboard
         </h1>
         <p className="text-slate-400 mt-1">Top contributors in the community</p>
-      </div>
+        </div>
+
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search users by name..."
+          isLoading={isLoading}
+        />
 
       <Tabs value={period} onValueChange={(v) => setPeriod(v as 'all' | 'month' | 'week')} className="w-full">
         <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e]">
@@ -73,7 +88,7 @@ export default function LeaderboardPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
             </div>
-          ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
             <div className="text-center py-12">
               <Trophy className="h-12 w-12 text-slate-600 mx-auto mb-4" />
               <p className="text-slate-400">No leaderboard data available</p>

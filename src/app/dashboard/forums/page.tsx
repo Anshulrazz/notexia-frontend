@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Users, Loader2 } from 'lucide-react'
+import { Plus, Users, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SearchBar } from '@/components/SearchBar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -148,15 +149,12 @@ export default function ForumsPage() {
         </Dialog>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-        <Input
+        <SearchBar
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search forums..."
-          className="pl-10 bg-[#1e1e2e] border-[#2a2a3e] text-white"
+          onChange={setSearchQuery}
+          placeholder="Search forums by name or description..."
+          isLoading={isLoading}
         />
-      </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
