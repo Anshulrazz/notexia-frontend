@@ -29,19 +29,35 @@ export default function ForumsPage() {
   const [isCreating, setIsCreating] = useState(false)
 
   const [newForum, setNewForum] = useState({ name: '', description: '' })
+  const [allForums, setAllForums] = useState<Forum[]>([])
 
   useEffect(() => {
     loadForums()
-  }, [searchQuery])
+  }, [])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setForums(allForums)
+    } else {
+      const query = searchQuery.toLowerCase()
+      const filtered = allForums.filter(forum => {
+        const name = typeof forum.name === 'object' && forum.name !== null
+          ? (forum.name as { name?: string }).name || ''
+          : String(forum.name || '')
+        return name.toLowerCase().includes(query)
+      })
+      setForums(filtered)
+    }
+  }, [searchQuery, allForums])
 
   const loadForums = async () => {
     setIsLoading(true)
     try {
-      const params: { search?: string } = {}
-      if (searchQuery) params.search = searchQuery
-      const data = await forumService.getForums(params)
+      const data = await forumService.getForums()
+      setAllForums(data)
       setForums(data)
     } catch {
+      setAllForums([])
       setForums([])
     } finally {
       setIsLoading(false)

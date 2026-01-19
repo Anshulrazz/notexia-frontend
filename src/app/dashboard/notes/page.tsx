@@ -39,6 +39,7 @@ export default function NotesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
+  const [allNotes, setAllNotes] = useState<Note[]>([])
   const [newNote, setNewNote] = useState({
     title: '',
     description: '',
@@ -49,19 +50,55 @@ export default function NotesPage() {
   })
   const [isGeneratingTags, setIsGeneratingTags] = useState(false)
 
+  const parseTags = (tags: string | string[] | { _id?: string; name: string }[]): string[] => {
+    if (!tags) return []
+    if (Array.isArray(tags)) {
+      return tags.map(t => {
+        if (typeof t === 'object' && t !== null && 'name' in t) return t.name
+        return String(t)
+      }).filter(Boolean)
+    }
+    if (typeof tags === 'string') return tags.split(',').map(t => t.trim()).filter(Boolean)
+    return []
+  }
+
   useEffect(() => {
     loadNotes()
-  }, [selectedSubject, searchQuery])
+  }, [])
+
+  useEffect(() => {
+    let filtered = allNotes
+    
+    if (selectedSubject !== 'all') {
+      filtered = filtered.filter(note => {
+        const subjectName = typeof note.subject === 'object' && note.subject !== null 
+          ? (note.subject as { name?: string }).name 
+          : note.subject
+        return subjectName === selectedSubject
+      })
+    }
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(note => {
+        const titleMatch = note.title?.toLowerCase().includes(query)
+        const tags = parseTags(note.tags)
+        const tagMatch = tags.some(tag => tag.toLowerCase().includes(query))
+        return titleMatch || tagMatch
+      })
+    }
+    
+    setNotes(filtered)
+  }, [searchQuery, selectedSubject, allNotes])
 
   const loadNotes = async () => {
     setIsLoading(true)
     try {
-      const params: { subject?: string; search?: string } = {}
-      if (selectedSubject !== 'all') params.subject = selectedSubject
-      if (searchQuery) params.search = searchQuery
-      const data = await noteService.getNotes(params)
+      const data = await noteService.getNotes()
+      setAllNotes(data)
       setNotes(data)
     } catch {
+      setAllNotes([])
       setNotes([])
     } finally {
       setIsLoading(false)

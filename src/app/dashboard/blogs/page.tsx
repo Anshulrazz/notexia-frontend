@@ -36,19 +36,35 @@ export default function BlogsPage() {
     tags: '',
   })
   const [isGeneratingTags, setIsGeneratingTags] = useState(false)
+  const [allBlogs, setAllBlogs] = useState<Blog[]>([])
 
   useEffect(() => {
     loadBlogs()
-  }, [searchQuery])
+  }, [])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setBlogs(allBlogs)
+    } else {
+      const query = searchQuery.toLowerCase()
+      const filtered = allBlogs.filter(blog => {
+        const titleMatch = blog.title?.toLowerCase().includes(query)
+        const tags = parseTags(blog.tags)
+        const tagMatch = tags.some(tag => tag.toLowerCase().includes(query))
+        return titleMatch || tagMatch
+      })
+      setBlogs(filtered)
+    }
+  }, [searchQuery, allBlogs])
 
   const loadBlogs = async () => {
     setIsLoading(true)
     try {
-      const params: { search?: string } = {}
-      if (searchQuery) params.search = searchQuery
-      const data = await blogService.getBlogs(params)
+      const data = await blogService.getBlogs()
+      setAllBlogs(data)
       setBlogs(data)
     } catch {
+      setAllBlogs([])
       setBlogs([])
     } finally {
       setIsLoading(false)
