@@ -21,7 +21,7 @@ interface ActivityItem {
 interface SchemaData {
   blogs: Array<{ _id: string; title: string; createdAt: string; author?: { _id: string } }>
   notes: Array<{ _id: string; title: string; createdAt: string; author?: { _id: string } }>
-  doubts: Array<{ _id: string; question: string; createdAt: string; author?: { _id: string }; isResolved?: boolean }>
+  doubts: Array<{ _id: string; question: string; createdAt: string; author?: { _id: string }; acceptedAnswer?: string | null }>
   forums: Array<{ _id: string; name: string; createdAt: string; createdBy?: { _id: string } }>
 }
 
@@ -101,7 +101,7 @@ export default function DashboardPage() {
             })
             if (doubt.author?._id === userId) {
               userDoubts++
-              if (doubt.isResolved) userResolvedDoubts++
+              if (doubt.acceptedAnswer) userResolvedDoubts++
             }
           })
 

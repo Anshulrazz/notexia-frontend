@@ -23,7 +23,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 interface SchemaData {
   blogs: Array<{ _id: string; createdAt: string }>
   notes: Array<{ _id: string; createdAt: string }>
-  doubts: Array<{ _id: string; createdAt: string; isResolved?: boolean }>
+  doubts: Array<{ _id: string; createdAt: string; acceptedAnswer?: string | null }>
   forums: Array<{ _id: string; createdAt: string }>
 }
 
@@ -109,7 +109,7 @@ export default function AdminPage() {
               const month = months[date.getMonth()]
               monthlyData[month].doubts++
             }
-            if (item.isResolved) resolvedDoubts++
+            if (item.acceptedAnswer) resolvedDoubts++
             else unresolvedDoubts++
           })
 
