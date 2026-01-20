@@ -9,6 +9,16 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ReportButton } from '@/components/ReportButton'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
+import dynamic from 'next/dynamic'
+
+const PDFViewer = dynamic(() => import('@/components/PDFViewer').then(mod => ({ default: mod.PDFViewer })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+    </div>
+  )
+})
 import { noteService, Note } from '@/services/note.service'
 import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
@@ -134,7 +144,7 @@ export default function NoteDetailPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <Button variant="ghost" onClick={() => router.push('/dashboard/notes')} className="text-slate-400 hover:text-white">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Notes
@@ -188,14 +198,14 @@ export default function NoteDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={getAvatarUrl(note.author?.avatar)} />
+                <AvatarImage src={getAvatarUrl(note.uploader?.avatar)} />
                 <AvatarFallback className="bg-violet-500/20 text-violet-400">
-                  {getInitials(note.author?.name || 'U')}
+                  {getInitials(note.uploader?.name || 'U')}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium text-white">{note.author?.name || 'Unknown'}</p>
-                <p className="text-xs text-slate-500">Author</p>
+                <p className="text-sm font-medium text-white">{note.uploader?.name || 'Unknown'}</p>
+                <p className="text-xs text-slate-500">uploader</p>
               </div>
             </div>
 
@@ -225,8 +235,19 @@ export default function NoteDetailPage() {
                 </Button>
               </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+</CardContent>
+        </Card>
+
+        {note.file?.path && note.file.path.toLowerCase().endsWith('.pdf') && (
+          <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">PDF Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PDFViewer url={getFileUrl(note.file.path) || ''} />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    )
+  }

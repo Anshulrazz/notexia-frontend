@@ -335,13 +335,13 @@ export default function NotesPage() {
                 <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-7 w-7">
-                      <AvatarImage src={getAvatarUrl(note.author?.avatar)} />
+                      <AvatarImage src={getAvatarUrl(note.uploader?.avatar)} />
                       <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
-                        {getInitials(note.author?.name || 'U')}
+                        {getInitials(note.uploader?.name || 'U')}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xs font-medium text-white">{note.author?.name || 'Unknown'}</p>
+                      <p className="text-xs font-medium text-white">{note.uploader?.name || 'Unknown'}</p>
                       <p className="text-xs text-slate-500">{formatRelativeTime(note.createdAt)}</p>
                     </div>
                   </div>
