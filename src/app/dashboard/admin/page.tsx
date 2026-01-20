@@ -18,12 +18,31 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { getInitials, getAvatarUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
 import { adminService, AdminUser, AdminStats } from '@/services/admin.service'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
+
+interface SchemaData {
+  blogs: Array<{ _id: string; createdAt: string }>
+  notes: Array<{ _id: string; createdAt: string }>
+  doubts: Array<{ _id: string; createdAt: string; isResolved?: boolean }>
+  forums: Array<{ _id: string; createdAt: string }>
+}
+
+interface ContentTrend {
+  month: string
+  notes: number
+  blogs: number
+  doubts: number
+  forums: number
+}
 
 export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [contentTrends, setContentTrends] = useState<ContentTrend[]>([])
+  const [pieData, setPieData] = useState<Array<{ name: string; value: number; color: string }>>([])
+  const [doubtsData, setDoubtsData] = useState<Array<{ name: string; value: number; color: string }>>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,6 +53,13 @@ export default function AdminPage() {
         ])
         setUsers(usersData)
         setStats(statsData)
+
+        setPieData([
+          { name: 'Notes', value: statsData?.notes ?? 0, color: '#8b5cf6' },
+          { name: 'Blogs', value: statsData?.blogs ?? 0, color: '#10b981' },
+          { name: 'Doubts', value: statsData?.doubts ?? 0, color: '#3b82f6' },
+          { name: 'Forums', value: statsData?.forums ?? 0, color: '#f59e0b' },
+        ])
       } catch {
         toast.error('Failed to load admin data')
       } finally {
@@ -41,6 +67,71 @@ export default function AdminPage() {
       }
     }
     fetchData()
+  }, [])
+
+  useEffect(() => {
+    const fetchSchemaData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schemas`)
+        const result = await response.json()
+        if (result.success && result.data) {
+          const data: SchemaData = result.data
+          const monthlyData: Record<string, ContentTrend> = {}
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          
+          const currentYear = new Date().getFullYear()
+          months.forEach((m) => {
+            monthlyData[m] = { month: m, notes: 0, blogs: 0, doubts: 0, forums: 0 }
+          })
+
+          let resolvedDoubts = 0
+          let unresolvedDoubts = 0
+
+          data.notes?.forEach((item) => {
+            const date = new Date(item.createdAt)
+            if (date.getFullYear() === currentYear) {
+              const month = months[date.getMonth()]
+              monthlyData[month].notes++
+            }
+          })
+
+          data.blogs?.forEach((item) => {
+            const date = new Date(item.createdAt)
+            if (date.getFullYear() === currentYear) {
+              const month = months[date.getMonth()]
+              monthlyData[month].blogs++
+            }
+          })
+
+          data.doubts?.forEach((item) => {
+            const date = new Date(item.createdAt)
+            if (date.getFullYear() === currentYear) {
+              const month = months[date.getMonth()]
+              monthlyData[month].doubts++
+            }
+            if (item.isResolved) resolvedDoubts++
+            else unresolvedDoubts++
+          })
+
+          data.forums?.forEach((item) => {
+            const date = new Date(item.createdAt)
+            if (date.getFullYear() === currentYear) {
+              const month = months[date.getMonth()]
+              monthlyData[month].forums++
+            }
+          })
+
+          setContentTrends(months.map((m) => monthlyData[m]))
+          setDoubtsData([
+            { name: 'Resolved', value: resolvedDoubts, color: '#10b981' },
+            { name: 'Unresolved', value: unresolvedDoubts, color: '#ef4444' },
+          ])
+        }
+      } catch (error) {
+        console.error('Failed to fetch schema data:', error)
+      }
+    }
+    fetchSchemaData()
   }, [])
 
   const filteredUsers = users.filter(
@@ -112,6 +203,94 @@ export default function AdminPage() {
           ))}
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+            <CardHeader>
+              <CardTitle className="text-white">Content Trends (Monthly)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={contentTrends}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3e" />
+                    <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                    <YAxis stroke="#64748b" fontSize={12} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #2a2a3e', borderRadius: '8px' }} labelStyle={{ color: '#fff' }} />
+                    <Legend />
+                    <Line type="monotone" dataKey="notes" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} />
+                    <Line type="monotone" dataKey="blogs" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
+                    <Line type="monotone" dataKey="doubts" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
+                    <Line type="monotone" dataKey="forums" stroke="#f59e0b" strokeWidth={2} dot={{ fill: '#f59e0b' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+            <CardHeader>
+              <CardTitle className="text-white">Content Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #2a2a3e', borderRadius: '8px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+            <CardHeader>
+              <CardTitle className="text-white">Content by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={pieData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3e" />
+                    <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
+                    <YAxis stroke="#64748b" fontSize={12} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #2a2a3e', borderRadius: '8px' }} />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+            <CardHeader>
+              <CardTitle className="text-white">Doubts Resolution Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={doubtsData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      {doubtsData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: '#1e1e2e', border: '1px solid #2a2a3e', borderRadius: '8px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -142,15 +321,15 @@ export default function AdminPage() {
                     className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]"
                   >
                     <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={getAvatarUrl(user.avatar)} />
-                          <AvatarFallback className="bg-violet-500/20 text-violet-400">
-                            {getInitials(user.name || user.email)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-white">{user.name || 'Unknown'}</p>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={getAvatarUrl(user.avatar)} />
+                        <AvatarFallback className="bg-violet-500/20 text-violet-400">
+                          {getInitials(user.name || user.email)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-white">{user.name || 'Unknown'}</p>
                           {user.isBanned && (
                             <Badge variant="destructive" className="text-xs">Banned</Badge>
                           )}

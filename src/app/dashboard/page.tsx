@@ -19,10 +19,17 @@ interface ActivityItem {
 }
 
 interface SchemaData {
-  blogs: Array<{ _id: string; title: string; createdAt: string }>
-  notes: Array<{ _id: string; title: string; createdAt: string }>
-  doubts: Array<{ _id: string; question: string; createdAt: string }>
-  forums: Array<{ _id: string; name: string; createdAt: string }>
+  blogs: Array<{ _id: string; title: string; createdAt: string; author?: { _id: string } }>
+  notes: Array<{ _id: string; title: string; createdAt: string; author?: { _id: string } }>
+  doubts: Array<{ _id: string; question: string; createdAt: string; author?: { _id: string }; isResolved?: boolean }>
+  forums: Array<{ _id: string; name: string; createdAt: string; createdBy?: { _id: string } }>
+}
+
+interface UserProgress {
+  notesContribution: number
+  doubtsResolved: number
+  forumEngagement: number
+  blogActivity: number
 }
 
 export default function DashboardPage() {
@@ -30,6 +37,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
+  const [progress, setProgress] = useState<UserProgress>({ notesContribution: 0, doubtsResolved: 0, forumEngagement: 0, blogActivity: 0 })
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,6 +61,13 @@ export default function DashboardPage() {
         if (result.success && result.data) {
           const data: SchemaData = result.data
           const activities: ActivityItem[] = []
+          const userId = user?._id
+
+          let userNotes = 0
+          let userBlogs = 0
+          let userDoubts = 0
+          let userResolvedDoubts = 0
+          let userForums = 0
 
           data.blogs?.forEach((blog) => {
             activities.push({
@@ -62,6 +77,7 @@ export default function DashboardPage() {
               time: formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true }),
               timestamp: new Date(blog.createdAt),
             })
+            if (blog.author?._id === userId) userBlogs++
           })
 
           data.notes?.forEach((note) => {
@@ -72,6 +88,7 @@ export default function DashboardPage() {
               time: formatDistanceToNow(new Date(note.createdAt), { addSuffix: true }),
               timestamp: new Date(note.createdAt),
             })
+            if (note.author?._id === userId) userNotes++
           })
 
           data.doubts?.forEach((doubt) => {
@@ -82,6 +99,10 @@ export default function DashboardPage() {
               time: formatDistanceToNow(new Date(doubt.createdAt), { addSuffix: true }),
               timestamp: new Date(doubt.createdAt),
             })
+            if (doubt.author?._id === userId) {
+              userDoubts++
+              if (doubt.isResolved) userResolvedDoubts++
+            }
           })
 
           data.forums?.forEach((forum) => {
@@ -92,17 +113,30 @@ export default function DashboardPage() {
               time: formatDistanceToNow(new Date(forum.createdAt), { addSuffix: true }),
               timestamp: new Date(forum.createdAt),
             })
+            if (forum.createdBy?._id === userId) userForums++
           })
 
           activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
           setRecentActivity(activities.slice(0, 6))
+
+          const totalNotes = data.notes?.length || 1
+          const totalBlogs = data.blogs?.length || 1
+          const totalDoubts = data.doubts?.length || 1
+          const totalForums = data.forums?.length || 1
+
+          setProgress({
+            notesContribution: Math.min(100, Math.round((userNotes / totalNotes) * 100)),
+            blogActivity: Math.min(100, Math.round((userBlogs / totalBlogs) * 100)),
+            doubtsResolved: userDoubts > 0 ? Math.round((userResolvedDoubts / userDoubts) * 100) : 0,
+            forumEngagement: Math.min(100, Math.round((userForums / totalForums) * 100)),
+          })
         }
       } catch (error) {
         console.error('Failed to fetch recent activity:', error)
       }
     }
     fetchRecentActivity()
-  }, [])
+  }, [user?._id])
 
   const statCards = [
     { label: 'Notes Shared', value: stats?.totalNotes ?? stats?.notes ?? 0, icon: FileText, color: 'from-violet-500 to-fuchsia-500' },
@@ -199,46 +233,46 @@ export default function DashboardPage() {
               Your Progress
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-400">Notes Contribution</span>
-                  <span className="text-white font-medium">75%</span>
+<CardContent>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-400">Notes Contribution</span>
+                    <span className="text-white font-medium">{progress.notesContribution}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#12121a]">
+                    <div className="h-2 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500" style={{ width: `${progress.notesContribution}%` }} />
+                  </div>
                 </div>
-                <div className="h-2 rounded-full bg-[#12121a]">
-                  <div className="h-2 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500" style={{ width: '75%' }} />
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-400">Doubts Resolved</span>
+                    <span className="text-white font-medium">{progress.doubtsResolved}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#12121a]">
+                    <div className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500" style={{ width: `${progress.doubtsResolved}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-400">Forum Engagement</span>
+                    <span className="text-white font-medium">{progress.forumEngagement}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#12121a]">
+                    <div className="h-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style={{ width: `${progress.forumEngagement}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-slate-400">Blog Activity</span>
+                    <span className="text-white font-medium">{progress.blogActivity}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#12121a]">
+                    <div className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500" style={{ width: `${progress.blogActivity}%` }} />
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-400">Doubts Resolved</span>
-                  <span className="text-white font-medium">60%</span>
-                </div>
-                <div className="h-2 rounded-full bg-[#12121a]">
-                  <div className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500" style={{ width: '60%' }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-400">Forum Engagement</span>
-                  <span className="text-white font-medium">45%</span>
-                </div>
-                <div className="h-2 rounded-full bg-[#12121a]">
-                  <div className="h-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500" style={{ width: '45%' }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-400">Blog Activity</span>
-                  <span className="text-white font-medium">80%</span>
-                </div>
-                <div className="h-2 rounded-full bg-[#12121a]">
-                  <div className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" style={{ width: '80%' }} />
-                </div>
-              </div>
-            </div>
-          </CardContent>
+            </CardContent>
         </Card>
       </div>
     </div>
