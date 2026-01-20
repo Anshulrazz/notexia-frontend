@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Download, Heart, Filter, Loader2, Sparkles, Search, X } from 'lucide-react'
+import { Plus, Download, Heart, Filter, Loader2, Sparkles, Search, X, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -345,25 +345,29 @@ export default function NotesPage() {
                       <p className="text-xs text-slate-500">{formatRelativeTime(note.createdAt)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
-                      onClick={() => handleLike(note._id)}
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                    <span className="text-xs text-slate-500">{note.likes?.length || 0}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10"
-                      onClick={() => handleDownload(note)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
+<div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
+                        onClick={() => handleLike(note._id)}
+                      >
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                      <span className="text-xs text-slate-500">{note.likes?.length || 0}</span>
+                      <Link href={`/dashboard/notes/${note._id}`} className="flex items-center gap-1 text-slate-400 hover:text-violet-400">
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="text-xs">{note.comments?.length || 0}</span>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10"
+                        onClick={() => handleDownload(note)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
                 </div>
               </CardContent>
             </Card>
