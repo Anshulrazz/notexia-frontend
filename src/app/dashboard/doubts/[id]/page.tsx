@@ -323,7 +323,9 @@ export default function DoubtDetailPage() {
                     Accepted Answer
                   </Badge>
                 )}
-                <p className="text-slate-300 mb-4">{answer.text}</p>
+                <div className="text-slate-300 mb-4">
+                    <MarkdownRenderer content={answer.text || ''} />
+                  </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-7 w-7">
