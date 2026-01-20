@@ -56,18 +56,17 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email)
 }
 
-const API_URL = 'http://localhost:5001'
+const API_URL = 'https://api.notexia.in'
 
 export function getAvatarUrl(avatar?: string | null): string | undefined {
   if (!avatar) return undefined
   if (avatar.startsWith('http')) return avatar
-  if (avatar.startsWith('/')) return `http://localhost:5001${avatar}`
-  console.log(avatar);
-  return `http://localhost:5001/${avatar}`
+  if (avatar.startsWith('/')) return `https://api.notexia.in${avatar}`
+  return `https://api.notexia.in/${avatar}`
 }
 
 export function getFileUrl(path?: string): string | undefined {
   if (!path) return undefined
   if (path.startsWith('http')) return path
-  return `http://localhost:5001${path}`
+  return `https://api.notexia.in${path}`
 }
