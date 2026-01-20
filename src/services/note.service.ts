@@ -27,6 +27,7 @@ export interface Note {
     _id?: string
     id?: string
     name: string
+    avatar?: string
     college?: string
   }
   author?: {
