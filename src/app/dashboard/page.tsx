@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { FileText, HelpCircle, Users, BookOpen, TrendingUp, Clock, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/store/auth.store'
@@ -10,7 +11,8 @@ import { getInitials, getAvatarUrl } from '@/utils/helpers'
 import { formatDistanceToNow } from 'date-fns'
 
 interface ActivityItem {
-  type: 'note' | 'doubt' | 'forum' | 'blog' | 'bookmark'
+  id: string
+  type: 'note' | 'doubt' | 'forum' | 'blog'
   title: string
   time: string
   timestamp: Date
@@ -21,7 +23,6 @@ interface SchemaData {
   notes: Array<{ _id: string; title: string; createdAt: string }>
   doubts: Array<{ _id: string; question: string; createdAt: string }>
   forums: Array<{ _id: string; name: string; createdAt: string }>
-  bookmarks: Array<{ _id: string; itemType: string; createdAt: string }>
 }
 
 export default function DashboardPage() {
@@ -55,6 +56,7 @@ export default function DashboardPage() {
 
           data.blogs?.forEach((blog) => {
             activities.push({
+              id: blog._id,
               type: 'blog',
               title: blog.title,
               time: formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true }),
@@ -64,6 +66,7 @@ export default function DashboardPage() {
 
           data.notes?.forEach((note) => {
             activities.push({
+              id: note._id,
               type: 'note',
               title: note.title,
               time: formatDistanceToNow(new Date(note.createdAt), { addSuffix: true }),
@@ -73,6 +76,7 @@ export default function DashboardPage() {
 
           data.doubts?.forEach((doubt) => {
             activities.push({
+              id: doubt._id,
               type: 'doubt',
               title: doubt.question,
               time: formatDistanceToNow(new Date(doubt.createdAt), { addSuffix: true }),
@@ -82,6 +86,7 @@ export default function DashboardPage() {
 
           data.forums?.forEach((forum) => {
             activities.push({
+              id: forum._id,
               type: 'forum',
               title: forum.name,
               time: formatDistanceToNow(new Date(forum.createdAt), { addSuffix: true }),
@@ -158,25 +163,31 @@ export default function DashboardPage() {
                 {recentActivity.length === 0 ? (
                   <p className="text-slate-500 text-sm text-center py-4">No recent activity</p>
                 ) : (
-                  recentActivity.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
-                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                        item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
-                        item.type === 'doubt' ? 'bg-blue-500/10 text-blue-400' :
-                        item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
-                        'bg-emerald-500/10 text-emerald-400'
-                      }`}>
-                        {item.type === 'note' && <FileText className="h-5 w-5" />}
-                        {item.type === 'doubt' && <HelpCircle className="h-5 w-5" />}
-                        {item.type === 'forum' && <Users className="h-5 w-5" />}
-                        {item.type === 'blog' && <BookOpen className="h-5 w-5" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{item.title}</p>
-                        <p className="text-xs text-slate-500">{item.time}</p>
-                      </div>
-                    </div>
-                  ))
+                  recentActivity.map((item) => {
+                    const href = item.type === 'note' ? `/dashboard/notes/${item.id}` :
+                      item.type === 'doubt' ? `/dashboard/doubts/${item.id}` :
+                      item.type === 'forum' ? `/dashboard/forums/${item.id}` :
+                      `/dashboard/blogs/${item.id}`
+                    return (
+                      <Link key={item.id} href={href} className="flex items-center gap-4 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e] hover:border-violet-500/50 hover:bg-[#1a1a2a] transition-all cursor-pointer">
+                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                          item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
+                          item.type === 'doubt' ? 'bg-blue-500/10 text-blue-400' :
+                          item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
+                          'bg-emerald-500/10 text-emerald-400'
+                        }`}>
+                          {item.type === 'note' && <FileText className="h-5 w-5" />}
+                          {item.type === 'doubt' && <HelpCircle className="h-5 w-5" />}
+                          {item.type === 'forum' && <Users className="h-5 w-5" />}
+                          {item.type === 'blog' && <BookOpen className="h-5 w-5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                          <p className="text-xs text-slate-500">{item.time}</p>
+                        </div>
+                      </Link>
+                    )
+                  })
                 )}
               </div>
             </CardContent>
