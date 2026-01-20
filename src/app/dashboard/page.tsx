@@ -34,10 +34,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-          const data = await adminService.getStats()
-          setStats(data)
-        } catch {
-          setStats({ totalUsers: 0, totalNotes: 0, totalDoubts: 0, totalBlogs: 0, totalForums: 0 })
+        const data = await adminService.getStats()
+        setStats(data)
+      } catch {
+        setStats({ totalUsers: 0, totalNotes: 0, totalDoubts: 0, totalBlogs: 0, totalForums: 0 })
       } finally {
         setIsLoading(false)
       }
@@ -158,39 +158,38 @@ export default function DashboardPage() {
               Recent Activity
             </CardTitle>
           </CardHeader>
-<CardContent>
-              <div className="space-y-4">
-                {recentActivity.length === 0 ? (
-                  <p className="text-slate-500 text-sm text-center py-4">No recent activity</p>
-                ) : (
-                  recentActivity.map((item) => {
-                    const href = item.type === 'note' ? `/dashboard/notes/${item.id}` :
-                      item.type === 'doubt' ? `/dashboard/doubts/${item.id}` :
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivity.length === 0 ? (
+                <p className="text-slate-500 text-sm text-center py-4">No recent activity</p>
+              ) : (
+                recentActivity.map((item) => {
+                  const href = item.type === 'note' ? `/dashboard/notes/${item.id}` :
+                    item.type === 'doubt' ? `/dashboard/doubts/${item.id}` :
                       item.type === 'forum' ? `/dashboard/forums/${item.id}` :
-                      `/dashboard/blogs/${item.id}`
-                    return (
-                      <Link key={item.id} href={href} className="flex items-center gap-4 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e] hover:border-violet-500/50 hover:bg-[#1a1a2a] transition-all cursor-pointer">
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                          item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
+                        `/dashboard/blogs/${item.id}`
+                  return (
+                    <Link key={item.id} href={href} className="flex items-center gap-4 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e] hover:border-violet-500/50 hover:bg-[#1a1a2a] transition-all cursor-pointer">
+                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
                           item.type === 'doubt' ? 'bg-blue-500/10 text-blue-400' :
-                          item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
-                          'bg-emerald-500/10 text-emerald-400'
+                            item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-emerald-500/10 text-emerald-400'
                         }`}>
-                          {item.type === 'note' && <FileText className="h-5 w-5" />}
-                          {item.type === 'doubt' && <HelpCircle className="h-5 w-5" />}
-                          {item.type === 'forum' && <Users className="h-5 w-5" />}
-                          {item.type === 'blog' && <BookOpen className="h-5 w-5" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{item.title}</p>
-                          <p className="text-xs text-slate-500">{item.time}</p>
-                        </div>
-                      </Link>
-                    )
-                  })
-                )}
-              </div>
-            </CardContent>
+                        {item.type === 'note' && <FileText className="h-5 w-5" />}
+                        {item.type === 'doubt' && <HelpCircle className="h-5 w-5" />}
+                        {item.type === 'forum' && <Users className="h-5 w-5" />}
+                        {item.type === 'blog' && <BookOpen className="h-5 w-5" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                        <p className="text-xs text-slate-500">{item.time}</p>
+                      </div>
+                    </Link>
+                  )
+                })
+              )}
+            </div>
+          </CardContent>
         </Card>
 
         <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
