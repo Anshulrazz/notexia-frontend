@@ -8,8 +8,11 @@ export interface NoteFile {
 }
 
 export interface NoteComment {
+  _id?: string
   user: {
+    _id?: string
     name: string
+    avatar?: string
   }
   text: string
   createdAt: string

@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark, BookmarkCheck } from 'lucide-react'
+import { ArrowLeft, Download, Heart, Calendar, FileText, Tag, Loader2, Bookmark, BookmarkCheck, MessageCircle, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Textarea } from '@/components/ui/textarea'
 import { ReportButton } from '@/components/ReportButton'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import dynamic from 'next/dynamic'
@@ -19,7 +20,7 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer').then(mod => ({ 
     </div>
   )
 })
-import { noteService, Note } from '@/services/note.service'
+import { noteService, Note, NoteComment } from '@/services/note.service'
 import { bookmarkService } from '@/services/bookmark.service'
 import { formatRelativeTime, getInitials, getAvatarUrl, getFileUrl } from '@/utils/helpers'
 import { toast } from 'sonner'
@@ -31,6 +32,8 @@ export default function NoteDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [bookmarkId, setBookmarkId] = useState<string | null>(null)
+  const [commentText, setCommentText] = useState('')
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -101,6 +104,21 @@ export default function NoteDetailPage() {
       toast.success('Download started')
     } catch {
       toast.error('Failed to download')
+    }
+  }
+
+  const handleAddComment = async () => {
+    if (!note || !commentText.trim()) return
+    setIsSubmittingComment(true)
+    try {
+      const response = await noteService.addComment(note._id, commentText.trim())
+      setNote((prev) => prev ? { ...prev, comments: response.comments } : null)
+      setCommentText('')
+      toast.success('Comment added!')
+    } catch {
+      toast.error('Failed to add comment')
+    } finally {
+      setIsSubmittingComment(false)
     }
   }
 
@@ -248,6 +266,60 @@ export default function NoteDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+          <CardHeader>
+            <CardTitle className="text-lg text-white flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-violet-400" />
+              Comments ({note.comments?.length || 0})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-3">
+              <Textarea
+                placeholder="Add a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="bg-[#12121a] border-[#2a2a3e] text-white placeholder:text-slate-500 min-h-[80px] resize-none"
+              />
+              <Button
+                onClick={handleAddComment}
+                disabled={!commentText.trim() || isSubmittingComment}
+                className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 self-end"
+              >
+                {isSubmittingComment ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            <div className="space-y-4 mt-6">
+              {note.comments && note.comments.length > 0 ? (
+                note.comments.map((comment, index) => (
+                  <div key={comment._id || index} className="flex gap-3 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={getAvatarUrl(comment.user?.avatar)} />
+                      <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
+                        {getInitials(comment.user?.name || 'U')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-white">{comment.user?.name || 'Unknown'}</span>
+                        <span className="text-xs text-slate-500">{formatRelativeTime(comment.createdAt)}</span>
+                      </div>
+                      <p className="text-sm text-slate-300 mt-1">{comment.text}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-slate-500 py-4">No comments yet. Be the first to comment!</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
