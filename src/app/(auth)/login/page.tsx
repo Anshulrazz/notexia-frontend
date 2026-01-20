@@ -49,11 +49,11 @@ export default function LoginPage() {
       login(response.user)
       toast.success('Welcome back!')
       router.push('/dashboard')
-    } catch {
-      toast.error('Invalid email or password')
-    } finally {
-      setIsLoading(false)
-    }
+} catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } }; message?: string }
+        const message = err?.response?.data?.message || err?.message || 'Invalid email or password'
+        toast.error(message)
+      }
   }
 
   const handleGoogleLogin = () => {
