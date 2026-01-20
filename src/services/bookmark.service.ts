@@ -32,8 +32,8 @@ export interface BookmarkResponse {
 
 export const bookmarkService = {
   getAll: async (type?: string, page: number = 1, limit: number = 20): Promise<BookmarkResponse> => {
-    const params: { type?: string; page: number; limit: number } = { page, limit }
-    if (type && type !== 'all') params.type = type
+    const params: { itemType?: string; page: number; limit: number } = { page, limit }
+    if (type && type !== 'all') params.itemType = type
     const response = await api.get('/bookmarks', { params })
     return response.data
   },
