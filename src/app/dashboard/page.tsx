@@ -146,37 +146,37 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16 ring-4 ring-violet-500/20">
-          <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
-          <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-xl font-bold">
-            {getInitials(user?.name || '')}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 className="text-3xl font-bold text-white">
-            Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
-          </h1>
-          <p className="text-slate-400 mt-1">Here&apos;s what&apos;s happening with your account.</p>
+      <div className="space-y-6 sm:space-y-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Avatar className="h-14 w-14 sm:h-16 sm:w-16 ring-4 ring-violet-500/20">
+            <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
+            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-lg sm:text-xl font-bold">
+              {getInitials(user?.name || '')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm sm:text-base">Here&apos;s what&apos;s happening with your account.</p>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.label} className="bg-[#1e1e2e] border-[#2a2a3e]">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-400">{stat.label}</p>
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-slate-400 truncate">{stat.label}</p>
                   {isLoading ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-violet-500 mt-2" />
+                    <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-violet-500 mt-2" />
                   ) : (
-                    <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-white mt-1">{stat.value}</p>
                   )}
                 </div>
-                <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <stat.icon className="h-6 w-6 text-white" />
+                <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center flex-shrink-0`}>
+                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -184,16 +184,16 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
               <Clock className="h-5 w-5 text-violet-400" />
               Recent Activity
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="px-4 sm:px-6">
+            <div className="space-y-3 sm:space-y-4">
               {recentActivity.length === 0 ? (
                 <p className="text-slate-500 text-sm text-center py-4">No recent activity</p>
               ) : (
@@ -203,23 +203,23 @@ export default function DashboardPage() {
                       item.type === 'forum' ? `/dashboard/forums/${item.id}` :
                         `/dashboard/blogs/${item.id}`
                   return (
-                    <Link key={item.id} href={href} className="flex items-center gap-4 p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e] hover:border-violet-500/50 hover:bg-[#1a1a2a] transition-all cursor-pointer">
-                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
-                          item.type === 'doubt' ? 'bg-blue-500/10 text-blue-400' :
-                            item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
-                              'bg-emerald-500/10 text-emerald-400'
-                        }`}>
-                        {item.type === 'note' && <FileText className="h-5 w-5" />}
-                        {item.type === 'doubt' && <HelpCircle className="h-5 w-5" />}
-                        {item.type === 'forum' && <Users className="h-5 w-5" />}
-                        {item.type === 'blog' && <BookOpen className="h-5 w-5" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{item.title}</p>
-                        <p className="text-xs text-slate-500">{item.time}</p>
-                      </div>
-                    </Link>
-                  )
+                      <Link key={item.id} href={href} className="flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3 rounded-lg bg-[#12121a] border border-[#2a2a3e] hover:border-violet-500/50 hover:bg-[#1a1a2a] transition-all cursor-pointer">
+                        <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${item.type === 'note' ? 'bg-violet-500/10 text-violet-400' :
+                            item.type === 'doubt' ? 'bg-blue-500/10 text-blue-400' :
+                              item.type === 'forum' ? 'bg-amber-500/10 text-amber-400' :
+                                'bg-emerald-500/10 text-emerald-400'
+                          }`}>
+                          {item.type === 'note' && <FileText className="h-4 w-4 sm:h-5 sm:w-5" />}
+                          {item.type === 'doubt' && <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />}
+                          {item.type === 'forum' && <Users className="h-4 w-4 sm:h-5 sm:w-5" />}
+                          {item.type === 'blog' && <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-white truncate">{item.title}</p>
+                          <p className="text-xs text-slate-500">{item.time}</p>
+                        </div>
+                      </Link>
+                    )
                 })
               )}
             </div>
@@ -227,14 +227,14 @@ export default function DashboardPage() {
         </Card>
 
         <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
               Your Progress
             </CardTitle>
           </CardHeader>
-<CardContent>
-              <div className="space-y-6">
+<CardContent className="px-4 sm:px-6">
+            <div className="space-y-4 sm:space-y-6">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-slate-400">Notes Contribution</span>

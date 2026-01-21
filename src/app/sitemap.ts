@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://notexia.com'
+  const baseUrl = 'https://notexia.in'
 
   const routes = [
     '',

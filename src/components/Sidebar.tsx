@@ -55,12 +55,13 @@ export function Sidebar() {
         />
       )}
 
-      <aside
-        className={cn(
-          'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-[#2a2a3e] bg-[#12121a] transition-transform duration-300 ease-in-out md:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
+        <aside
+          className={cn(
+            'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-[#2a2a3e] bg-[#12121a] transition-transform duration-300 ease-in-out',
+            'md:translate-x-0',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          )}
+        >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between p-4 md:hidden">
             <span className="font-semibold text-white">Menu</span>

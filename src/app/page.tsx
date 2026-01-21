@@ -295,7 +295,7 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>100% Free Forever</span>
@@ -453,7 +453,7 @@ export default function HomePage() {
 
         <section className="py-20 border-y border-violet-500/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {benefits.map((benefit, index) => (
                 <div key={benefit.title} className="flex items-start gap-4 group" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:border-violet-400 transition-all">
@@ -516,7 +516,7 @@ export default function HomePage() {
               </p>
             )}
 
-            <div className="mt-12 flex items-center justify-center gap-8 text-sm text-slate-500">
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-slate-500">
               <div className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-emerald-400" />
                 <span>Secure & Private</span>
@@ -536,12 +536,12 @@ export default function HomePage() {
 
       <footer className="border-t border-violet-500/20 py-12 bg-[#0a0a0f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col items-center gap-6">
 <div className="flex items-center gap-3">
                 <Image src="/logo.png" alt="Notexia Logo" width={40} height={40} className="rounded-xl" />
                 <span className="font-bold text-xl bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Notexia</span>
               </div>
-            <div className="flex items-center gap-6 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-slate-400">
               <Link href="/docs" className="hover:text-violet-400 transition-colors">Documentation</Link>
               <Link href="/terms" className="hover:text-violet-400 transition-colors">Terms</Link>
               <Link href="/privacy" className="hover:text-violet-400 transition-colors">Privacy</Link>
@@ -554,7 +554,7 @@ export default function HomePage() {
                 </>
               )}
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 text-center">
               © 2024 Notexia. Built for students, by students.
             </p>
           </div>
