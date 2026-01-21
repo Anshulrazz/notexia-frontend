@@ -1,0 +1,17 @@
+# Notexia Robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/admin/
+# Sitemaps
+Sitemap: https://notexia.in/sitemap.xml
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+# Google specific
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Disallow: /api/

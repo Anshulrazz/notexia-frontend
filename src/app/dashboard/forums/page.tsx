@@ -1,0 +1,245 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Plus, Users, Loader2, Search, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { ReportButton } from '@/components/ReportButton'
+import { forumService, Forum } from '@/services/forum.service'
+import { getInitials, getAvatarUrl, formatRelativeTime } from '@/utils/helpers'
+import { toast } from 'sonner'
+
+export default function ForumsPage() {
+  const [forums, setForums] = useState<Forum[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+
+  const [newForum, setNewForum] = useState({ name: '', description: '' })
+  const [allForums, setAllForums] = useState<Forum[]>([])
+
+  useEffect(() => {
+    loadForums()
+  }, [])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setForums(allForums)
+    } else {
+      const query = searchQuery.toLowerCase()
+      const filtered = allForums.filter(forum => {
+        const name = typeof forum.name === 'object' && forum.name !== null
+          ? (forum.name as { name?: string }).name || ''
+          : String(forum.name || '')
+        return name.toLowerCase().includes(query)
+      })
+      setForums(filtered)
+    }
+  }, [searchQuery, allForums])
+
+  const loadForums = async () => {
+    setIsLoading(true)
+    try {
+      const data = await forumService.getForums()
+      setAllForums(data)
+      setForums(data)
+    } catch {
+      setAllForums([])
+      setForums([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCreateForum = async () => {
+    if (!newForum.name) {
+      toast.error('Please fill all required fields')
+      return
+    }
+
+    setIsCreating(true)
+    try {
+      await forumService.createForum(newForum)
+      toast.success('Forum created successfully')
+      setIsCreateOpen(false)
+      setNewForum({ name: '', description: '' })
+      loadForums()
+    } catch {
+      toast.error('Failed to create forum')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleJoinForum = async (forumId: string) => {
+    try {
+      const response = await forumService.joinForum(forumId)
+      setForums((prev) =>
+        prev.map((f) => (f._id === forumId ? { ...f, members: [...(Array.isArray(f.members) ? f.members : []), { name: 'user' }] } : f))
+      )
+      toast.success('Joined forum successfully')
+    } catch {
+      toast.error('Failed to join forum')
+    }
+  }
+
+  const renderValue = (val: unknown, fallback: string = ''): string => {
+    if (val === null || val === undefined) return fallback
+    if (typeof val === 'string' || typeof val === 'number') return String(val)
+    if (typeof val === 'object') {
+      if (Array.isArray(val)) return String(val.length)
+      const obj = val as Record<string, unknown>
+      if (obj.name && typeof obj.name === 'string') return obj.name
+      if (obj.name && typeof obj.name === 'object') {
+        const nested = obj.name as Record<string, unknown>
+        if (nested.name) return String(nested.name)
+      }
+      if (obj.title && typeof obj.title === 'string') return obj.title
+      return fallback
+    }
+    return fallback
+  }
+
+  return (
+
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Forums</h1>
+          <p className="text-slate-400 mt-1 text-sm sm:text-base">Join communities and discuss topics</p>
+        </div>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Forum
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-[#1e1e2e] border-[#2a2a3e] text-white">
+            <DialogHeader>
+              <DialogTitle>Create New Forum</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Forum Name *</Label>
+                <Input
+                  value={newForum.name}
+                  onChange={(e) => setNewForum({ ...newForum, name: e.target.value })}
+                  placeholder="Enter forum name"
+                  className="bg-[#12121a] border-[#2a2a3e] text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newForum.description}
+                  onChange={(e) => setNewForum({ ...newForum, description: e.target.value })}
+                  placeholder="Describe your forum"
+                  className="bg-[#12121a] border-[#2a2a3e] text-white min-h-[80px]"
+                />
+              </div>
+              <Button
+                onClick={handleCreateForum}
+                disabled={isCreating}
+                className="w-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
+              >
+                {isCreating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Create Forum
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by forum name..."
+            className="pl-10 pr-10 bg-[#1e1e2e] border-[#2a2a3e] text-white placeholder:text-slate-500 focus:border-amber-500/50"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+        </div>
+      ) : forums.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-slate-400">No forums found. Create the first one!</p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {forums.map((forum) => (
+            <Card key={forum._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-amber-500/50 transition-colors">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between mb-3 gap-2">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm sm:text-base">{renderValue(forum.name, 'F')[0]}</span>
+                    </div>
+                    <ReportButton contentType="forum" contentId={forum._id} />
+                  </div>
+
+                  <Link href={`/dashboard/forums/${forum._id}`}>
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 hover:text-amber-400 transition-colors line-clamp-1">{renderValue(forum.name, 'Unnamed')}</h3>
+                    </Link>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 line-clamp-2">{renderValue(forum.description, 'No description')}</p>
+
+                <div className="flex items-center gap-4 text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4">
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      {renderValue(forum.members, '0')} members
+                    </span>
+                  </div>
+
+                  {forum.creator && (
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4 pt-2 sm:pt-3 border-t border-[#2a2a3e]">
+                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
+                        <AvatarImage src={getAvatarUrl(forum.creator?.avatar)} />
+                        <AvatarFallback className="bg-amber-500/20 text-amber-400 text-xs">
+                          {getInitials(forum.creator?.name || 'U')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs text-slate-400 truncate">Created by {forum.creator?.name || 'Unknown'}</span>
+                    </div>
+                  )}
+
+
+                <Button
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-sm"
+                  onClick={() => handleJoinForum(forum._id)}
+                >
+                  Join
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
