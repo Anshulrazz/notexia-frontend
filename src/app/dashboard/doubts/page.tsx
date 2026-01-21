@@ -324,81 +324,85 @@ export default function DoubtsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {doubts.map((doubt) => (
-            <Card key={doubt._id} className="bg-[#1e1e2e] border-[#2a2a3e]">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    {doubt.acceptedAnswer && (
-                      <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                        <Check className="h-3 w-3 mr-1" />
-                        Solved
+            {doubts.map((doubt) => (
+              <Card key={doubt._id} className="bg-[#1e1e2e] border-[#2a2a3e]">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between mb-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      {doubt.acceptedAnswer && (
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 whitespace-nowrap">
+                          <Check className="h-3 w-3 mr-1" />
+                          Solved
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0">
+                      <ReportButton contentType="doubt" contentId={doubt._id} />
+                    </div>
+                  </div>
+
+                  <Link href={`/dashboard/doubts/${doubt._id}`}>
+                        <h3 className="text-lg font-semibold text-white mb-2 hover:text-violet-400 transition-colors line-clamp-2">{doubt.question}</h3>
+                      </Link>
+                    <div className="text-sm text-slate-400 mb-4 line-clamp-3 overflow-hidden">
+                      <MarkdownRenderer content={doubt.description || ''} className="prose-sm" />
+                    </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {parseTags(doubt.tags).map((tag) => (
+                      <Badge key={tag} variant="outline" className="text-[10px] sm:text-xs border-[#2a2a3e] text-slate-400 py-0 h-5 sm:h-6">
+                        {tag}
                       </Badge>
-                    )}
-                  </div>
-                  <ReportButton contentType="doubt" contentId={doubt._id} />
-                </div>
-
-                <Link href={`/dashboard/doubts/${doubt._id}`}>
-                      <h3 className="text-lg font-semibold text-white mb-2 hover:text-violet-400 transition-colors">{doubt.question}</h3>
-                    </Link>
-                  <div className="text-sm text-slate-400 mb-4 line-clamp-3">
-                    <MarkdownRenderer content={doubt.description || ''} className="prose-sm" />
+                    ))}
                   </div>
 
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {parseTags(doubt.tags).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
-                      <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
-                        {getInitials(doubt.author?.name || 'U')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-xs font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
-                      <p className="text-xs text-slate-500">{formatRelativeTime(doubt.createdAt)}</p>
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between pt-4 border-t border-[#2a2a3e] gap-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
+                        <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs">
+                          {getInitials(doubt.author?.name || 'U')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-xs font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
+                        <p className="text-xs text-slate-500">{formatRelativeTime(doubt.createdAt)}</p>
+                      </div>
                     </div>
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-400 hover:text-amber-400 h-8 px-2 text-xs"
+                          onClick={() => handleGetHint(doubt)}
+                          disabled={isGettingHint && hintForDoubtId === doubt._id}
+                        >
+                          <Sparkles className="h-3.5 w-3.5 mr-1" />
+                          <span className="hidden xs:inline">AI Hint</span>
+                          <span className="xs:hidden">Hint</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-400 hover:text-violet-400 h-8 px-2 text-xs"
+                          onClick={() => handleGetAIAnswer(doubt)}
+                          disabled={isGettingAnswer && answerForDoubtId === doubt._id}
+                        >
+                          <Brain className="h-3.5 w-3.5 mr-1" />
+                          <span className="hidden xs:inline">AI Answer</span>
+                          <span className="xs:hidden">AI</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-400 hover:text-violet-400 h-8 px-2 text-xs"
+                          onClick={() => setSelectedDoubt(doubt)}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                          {doubt.answers?.length || 0} <span className="hidden xs:inline">Answers</span>
+                        </Button>
+                      </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-slate-400 hover:text-amber-400"
-                        onClick={() => handleGetHint(doubt)}
-                        disabled={isGettingHint && hintForDoubtId === doubt._id}
-                      >
-                        <Sparkles className="h-4 w-4 mr-1" />
-                        AI Hint
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-slate-400 hover:text-violet-400"
-                        onClick={() => handleGetAIAnswer(doubt)}
-                        disabled={isGettingAnswer && answerForDoubtId === doubt._id}
-                      >
-                        <Brain className="h-4 w-4 mr-1" />
-                        AI Answer
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-slate-400 hover:text-violet-400"
-                        onClick={() => setSelectedDoubt(doubt)}
-                      >
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        {doubt.answers?.length || 0} Answers
-                      </Button>
-                    </div>
-                </div>
 
                 {aiHint && hintForDoubtId === doubt._id && (
                     <div className="mt-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">

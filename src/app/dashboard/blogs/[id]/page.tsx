@@ -136,81 +136,83 @@ export default function BlogDetailPage() {
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blogs
       </Button>
-      <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-        <CardHeader className="pb-4">
-          <div className="flex items-start justify-between">
-            <div className="flex flex-wrap gap-2 mb-4">
-              {parseTags(blog.tags).map((tag) => (
-                <Badge key={tag} variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                  {tag}
-                </Badge>
-              ))}
+        <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                {parseTags(blog.tags).map((tag) => (
+                  <Badge key={tag} variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <div className="self-end sm:self-auto">
+                <ReportButton contentType="blog" contentId={blog._id} />
+              </div>
             </div>
-            <ReportButton contentType="blog" contentId={blog._id} />
-          </div>
-          <CardTitle className="text-3xl text-white">{blog.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between py-4 border-t border-b border-[#2a2a3e]">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={getAvatarUrl(blog.author?.avatar)} />
-                <AvatarFallback className="bg-emerald-500/20 text-emerald-400">
-                  {getInitials(blog.author?.name || 'U')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-white">{blog.author?.name || 'Unknown'}</p>
-                <p className="text-xs text-slate-500 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {formatRelativeTime(blog.createdAt)}
-                </p>
+            <CardTitle className="text-2xl sm:text-3xl text-white mt-4">{blog.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-t border-b border-[#2a2a3e] gap-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={getAvatarUrl(blog.author?.avatar)} />
+                  <AvatarFallback className="bg-emerald-500/20 text-emerald-400">
+                    {getInitials(blog.author?.name || 'U')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium text-white">{blog.author?.name || 'Unknown'}</p>
+                  <p className="text-xs text-slate-500 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {formatRelativeTime(blog.createdAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 text-slate-400 text-sm">
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {blog.views || 0} views
+                </span>
+                <span className="flex items-center gap-1">
+                  <Heart className="h-4 w-4 text-pink-400" />
+                  {blog.likes?.length || 0} likes
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-slate-400 text-sm">
-              <span className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                {blog.views || 0} views
-              </span>
-              <span className="flex items-center gap-1">
-                <Heart className="h-4 w-4 text-pink-400" />
-                {blog.likes?.length || 0} likes
-              </span>
+            <div className="text-slate-300 leading-relaxed overflow-x-auto">
+              <MarkdownRenderer content={blog.content} />
             </div>
-          </div>
 
-          <div className="text-slate-300 leading-relaxed">
-            <MarkdownRenderer content={blog.content} />
-          </div>
-
-              <div className="flex items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
-                <Button
-                  variant="outline"
-                  className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                  onClick={handleGenerateSummary}
-                  disabled={isGeneratingSummary}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  {isGeneratingSummary ? 'Generating...' : 'AI Summary'}
-                </Button>
-                <Button
-                  variant="outline"
-                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-emerald-400 border-emerald-500/50' : 'text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50'}`}
-                  onClick={handleBookmark}
-                >
-                  {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
-                  {isBookmarked ? 'Saved' : 'Save'}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10"
-                  onClick={handleLike}
-                >
-                  <Heart className="h-4 w-4 mr-2" />
-                  Like ({blog.likes?.length || 0})
-                </Button>
-              </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-6 border-t border-[#2a2a3e]">
+                  <Button
+                    variant="outline"
+                    className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 w-full sm:w-auto"
+                    onClick={handleGenerateSummary}
+                    disabled={isGeneratingSummary}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isGeneratingSummary ? 'Generating...' : 'AI Summary'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className={`border-[#2a2a3e] w-full sm:w-auto ${isBookmarked ? 'text-emerald-400 border-emerald-500/50' : 'text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50'}`}
+                    onClick={handleBookmark}
+                  >
+                    {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                    {isBookmarked ? 'Saved' : 'Save'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-pink-500/30 text-pink-400 hover:bg-pink-500/10 w-full sm:w-auto"
+                    onClick={handleLike}
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Like ({blog.likes?.length || 0})
+                  </Button>
+                </div>
 
             {aiSummary && (
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 mt-4">

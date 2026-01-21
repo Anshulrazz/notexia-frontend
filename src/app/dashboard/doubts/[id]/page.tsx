@@ -195,81 +195,83 @@ export default function DoubtDetailPage() {
         Back to Doubts
       </Button>
 
-      <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-        <CardHeader className="pb-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              {doubt.acceptedAnswer && (
-                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                  <Check className="h-3 w-3 mr-1" />
-                  Solved
-                </Badge>
-              )}
+        <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
+          <CardHeader className="pb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-2">
+                {doubt.acceptedAnswer && (
+                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 whitespace-nowrap">
+                    <Check className="h-3 w-3 mr-1" />
+                    Solved
+                  </Badge>
+                )}
+              </div>
+              <div className="flex-shrink-0">
+                <ReportButton contentType="doubt" contentId={doubt._id} />
+              </div>
             </div>
-            <ReportButton contentType="doubt" contentId={doubt._id} />
-          </div>
-          <CardTitle className="text-2xl text-white mt-2">{doubt.question}</CardTitle>
-        </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-slate-300 leading-relaxed">
-              <MarkdownRenderer content={doubt.description || ''} />
-            </div>
-
-          <div className="flex flex-wrap gap-2">
-            {parseTags(doubt.tags).map((tag) => (
-              <Badge key={tag} variant="outline" className="border-[#2a2a3e] text-slate-400">
-                <Tag className="h-3 w-3 mr-1" />
-                {tag}
-              </Badge>
-            ))}
-          </div>
-
-            <div className="flex items-center justify-between py-4 border-t border-b border-[#2a2a3e]">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
-                  <AvatarFallback className="bg-blue-500/20 text-blue-400">
-                    {getInitials(doubt.author?.name || 'U')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
-                  <p className="text-xs text-slate-500 flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatRelativeTime(doubt.createdAt)}
-                  </p>
-                </div>
+            <CardTitle className="text-xl sm:text-2xl text-white mt-4">{doubt.question}</CardTitle>
+          </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-slate-300 leading-relaxed overflow-x-auto">
+                <MarkdownRenderer content={doubt.description || ''} />
               </div>
 
-              <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className={`border-[#2a2a3e] ${isBookmarked ? 'text-blue-400 border-blue-500/50' : 'text-slate-300 hover:text-blue-400 hover:border-blue-500/50'}`}
-                    onClick={handleBookmark}
-                  >
-                    {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
-                    {isBookmarked ? 'Saved' : 'Save'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                    onClick={handleGetHint}
-                    disabled={isGettingHint}
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
-                    onClick={handleGetAIAnswer}
-                    disabled={isGettingAnswer}
-                  >
-                    <Brain className="h-4 w-4 mr-2" />
-                    {isGettingAnswer ? 'Generating...' : 'AI Answer'}
-                  </Button>
-                </div>
+            <div className="flex flex-wrap gap-2">
+              {parseTags(doubt.tags).map((tag) => (
+                <Badge key={tag} variant="outline" className="border-[#2a2a3e] text-slate-400">
+                  <Tag className="h-3 w-3 mr-1" />
+                  {tag}
+                </Badge>
+              ))}
             </div>
+
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between py-4 border-t border-b border-[#2a2a3e] gap-4">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={getAvatarUrl(doubt.author?.avatar)} />
+                    <AvatarFallback className="bg-blue-500/20 text-blue-400">
+                      {getInitials(doubt.author?.name || 'U')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium text-white">{doubt.author?.name || 'Unknown'}</p>
+                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {formatRelativeTime(doubt.createdAt)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <Button
+                      variant="outline"
+                      className={`border-[#2a2a3e] w-full sm:w-auto ${isBookmarked ? 'text-blue-400 border-blue-500/50' : 'text-slate-300 hover:text-blue-400 hover:border-blue-500/50'}`}
+                      onClick={handleBookmark}
+                    >
+                      {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
+                      {isBookmarked ? 'Saved' : 'Save'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 w-full sm:w-auto"
+                      onClick={handleGetHint}
+                      disabled={isGettingHint}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      {isGettingHint ? 'Getting Hint...' : 'AI Hint'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10 w-full sm:w-auto"
+                      onClick={handleGetAIAnswer}
+                      disabled={isGettingAnswer}
+                    >
+                      <Brain className="h-4 w-4 mr-2" />
+                      {isGettingAnswer ? 'Generating...' : 'AI Answer'}
+                    </Button>
+                  </div>
+              </div>
 
           {aiHint && (
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
@@ -309,58 +311,60 @@ export default function DoubtDetailPage() {
             <p className="text-slate-400 text-center py-4">No answers yet. Be the first to help!</p>
           ) : (
             doubt.answers?.map((answer) => (
-              <div
-                key={answer._id}
-                className={`p-4 rounded-lg ${
-                  doubt.acceptedAnswer === answer._id
-                    ? 'bg-emerald-500/10 border border-emerald-500/30'
-                    : 'bg-[#12121a] border border-[#2a2a3e]'
-                }`}
-              >
-                {doubt.acceptedAnswer === answer._id && (
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mb-3">
-                    <Check className="h-3 w-3 mr-1" />
-                    Accepted Answer
-                  </Badge>
-                )}
-                <div className="text-slate-300 mb-4">
-                    <MarkdownRenderer content={answer.text || ''} />
-                  </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage src={getAvatarUrl(answer.author?.avatar)} />
-                      <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
-                        {getInitials(answer.author?.name || 'U')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-slate-400">{answer.author?.name || 'Unknown'}</span>
-                    <span className="text-xs text-slate-500">{formatRelativeTime(answer.createdAt)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-400 hover:text-blue-400"
-                      onClick={() => handleUpvote(answer._id)}
-                    >
-                      <ThumbsUp className="h-4 w-4 mr-1" />
-                      {answer.upvotes?.length || 0}
-                    </Button>
-                    {isAuthor && !doubt.acceptedAnswer && (
+                <div
+                  key={answer._id}
+                  className={`p-4 rounded-lg ${
+                    doubt.acceptedAnswer === answer._id
+                      ? 'bg-emerald-500/10 border border-emerald-500/30'
+                      : 'bg-[#12121a] border border-[#2a2a3e]'
+                  }`}
+                >
+                  {doubt.acceptedAnswer === answer._id && (
+                    <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mb-3">
+                      <Check className="h-3 w-3 mr-1" />
+                      Accepted Answer
+                    </Badge>
+                  )}
+                  <div className="text-slate-300 mb-4 overflow-x-auto">
+                      <MarkdownRenderer content={answer.text || ''} />
+                    </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-7 w-7">
+                        <AvatarImage src={getAvatarUrl(answer.author?.avatar)} />
+                        <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
+                          {getInitials(answer.author?.name || 'U')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm text-slate-400">{answer.author?.name || 'Unknown'}</span>
+                        <span className="text-xs text-slate-500">{formatRelativeTime(answer.createdAt)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-slate-400 hover:text-emerald-400"
-                        onClick={() => handleAccept(answer._id)}
+                        className="text-slate-400 hover:text-blue-400 h-8 px-2"
+                        onClick={() => handleUpvote(answer._id)}
                       >
-                        <Check className="h-4 w-4 mr-1" />
-                        Accept
+                        <ThumbsUp className="h-4 w-4 mr-1" />
+                        {answer.upvotes?.length || 0}
                       </Button>
-                    )}
+                      {isAuthor && !doubt.acceptedAnswer && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-400 hover:text-emerald-400 h-8 px-2"
+                          onClick={() => handleAccept(answer._id)}
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Accept
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
             ))
           )}
 
