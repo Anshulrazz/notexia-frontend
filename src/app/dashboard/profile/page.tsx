@@ -60,19 +60,19 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Profile Settings</h1>
-        <p className="text-slate-400 mt-1">Manage your account information</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Profile Settings</h1>
+        <p className="text-slate-400 mt-1 text-sm sm:text-base">Manage your account information</p>
       </div>
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-        <CardHeader>
-          <CardTitle className="text-white">Avatar</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-white text-base sm:text-lg">Avatar</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center gap-6">
+        <CardContent className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           <div className="relative">
-            <Avatar className="h-24 w-24 ring-4 ring-violet-500/30">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 ring-4 ring-violet-500/30">
               <AvatarImage src={getAvatarUrl(user?.avatar)} alt={user?.name} />
-              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-2xl">
+              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-xl sm:text-2xl">
                 {getInitials(user?.name || 'U')}
               </AvatarFallback>
             </Avatar>
@@ -91,7 +91,7 @@ export default function ProfilePage() {
               />
             </label>
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <p className="text-sm text-white font-medium">Upload new avatar</p>
             <p className="text-xs text-slate-500 mt-1">JPG, PNG, GIF. Max 5MB.</p>
           </div>
@@ -99,12 +99,12 @@ export default function ProfilePage() {
       </Card>
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-        <CardHeader>
-          <CardTitle className="text-white">Personal Information</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-white text-base sm:text-lg">Personal Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
-            <Label className="text-white">Full Name</Label>
+            <Label className="text-white text-sm">Full Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -113,7 +113,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white">Email</Label>
+            <Label className="text-white text-sm">Email</Label>
             <Input
               value={user?.email || ''}
               disabled
@@ -123,7 +123,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white">College / University</Label>
+            <Label className="text-white text-sm">College / University</Label>
             <Input
               value={college}
               onChange={(e) => setCollege(e.target.value)}
@@ -132,9 +132,9 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label className="text-white">Branch</Label>
+              <Label className="text-white text-sm">Branch</Label>
               <Input
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
@@ -143,7 +143,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white">Year</Label>
+              <Label className="text-white text-sm">Year</Label>
               <Input
                 type="number"
                 min="1"
@@ -177,16 +177,16 @@ export default function ProfilePage() {
       </Card>
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
-        <CardHeader>
-          <CardTitle className="text-white">Account Status</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-white text-base sm:text-lg">Account Status</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e] gap-2">
             <div>
               <p className="text-sm font-medium text-white">Account Role</p>
               <p className="text-xs text-slate-500">Your current access level</p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+            <span className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto ${
               user?.role === 'admin' 
                 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' 
                 : 'bg-violet-500/10 text-violet-400 border border-violet-500/30'
@@ -195,12 +195,12 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e] gap-2">
             <div>
               <p className="text-sm font-medium text-white">Verification Status</p>
               <p className="text-xs text-slate-500">Account verification</p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+            <span className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto ${
               user?.isVerified 
                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
                 : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
@@ -209,12 +209,12 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e] gap-2">
             <div>
               <p className="text-sm font-medium text-white">Member Since</p>
               <p className="text-xs text-slate-500">Account creation date</p>
             </div>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-400 self-start sm:self-auto">
               {user?.createdAt ? formatDate(user.createdAt) : 'N/A'}
             </span>
           </div>

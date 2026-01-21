@@ -138,12 +138,12 @@ export default function BlogsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Blogs</h1>
-          <p className="text-slate-400 mt-1">Share your knowledge and experiences</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Blogs</h1>
+          <p className="text-slate-400 mt-1 text-sm sm:text-base">Share your knowledge and experiences</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white">
+            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Write Blog
             </Button>
@@ -235,15 +235,15 @@ export default function BlogsPage() {
           <p className="text-slate-400">No blogs found. Write the first one!</p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
           {blogs.map((blog) => (
             <Card key={blog._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-emerald-500/50 transition-colors overflow-hidden">
               <CardContent className="p-0">
-                <div className="h-40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
-                  <span className="text-6xl font-bold text-emerald-500/30">{blog.title[0]}</span>
+                <div className="h-32 sm:h-40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                  <span className="text-5xl sm:text-6xl font-bold text-emerald-500/30">{blog.title[0]}</span>
                 </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-2">
+                <div className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between mb-2 gap-2">
                     <div className="flex flex-wrap gap-1">
                       {parseTags(blog.tags).slice(0, 2).map((tag) => (
                         <Badge key={tag} variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs">
@@ -255,30 +255,30 @@ export default function BlogsPage() {
                   </div>
 
                   <Link href={`/dashboard/blogs/${blog._id}`}>
-                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-emerald-400 transition-colors">{blog.title}</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-emerald-400 transition-colors">{blog.title}</h3>
                     </Link>
-                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{blog.excerpt || truncateText(blog.content, 100)}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-4 line-clamp-2">{blog.excerpt || truncateText(blog.content, 100)}</p>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
+                  <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-[#2a2a3e]">
                     <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7">
+                    <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
                         <AvatarImage src={`https://api.notexia.in${blog.author?.avatar}`} />
                         <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
                           {getInitials(blog?.author?.name || 'U')}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="text-xs font-medium text-white">{blog.author?.name || 'Unknown'}</p>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-white truncate">{blog.author?.name || 'Unknown'}</p>
                         <p className="text-xs text-slate-500">{formatRelativeTime(blog.createdAt)}</p>
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
+                      className="text-slate-400 hover:text-pink-400 hover:bg-pink-500/10 h-8 px-2"
                       onClick={() => handleLike(blog._id)}
                     >
-                      <Heart className="h-4 w-4 mr-1" />
+                      <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
                       {blog.likes?.length || 0}
                     </Button>
                   </div>

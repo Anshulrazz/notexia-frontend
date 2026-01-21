@@ -148,28 +148,28 @@ export default function ForumDetailPage() {
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
         <CardHeader className="pb-4">
-          <div className="flex items-start justify-between">
-            <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-4">
-              <span className="text-white text-2xl font-bold">{forumName[0]}</span>
+          <div className="flex items-start justify-between gap-4">
+            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <span className="text-white text-xl sm:text-2xl font-bold">{forumName[0]}</span>
             </div>
             <ReportButton contentType="forum" contentId={forum._id} />
           </div>
-          <CardTitle className="text-2xl text-white">{forumName}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl text-white mt-4">{forumName}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-slate-300 leading-relaxed">{forumDescription}</p>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-b border-[#2a2a3e]">
-              <div className="flex items-center gap-2 text-slate-400">
-                <Users className="h-4 w-4 text-amber-400" />
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 py-4 border-t border-b border-[#2a2a3e]">
+              <div className="flex items-center gap-2 text-slate-400 text-sm">
+                <Users className="h-4 w-4 text-amber-400 flex-shrink-0" />
                 <span>{getMembersCount(forum.members)} members</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
-                <MessageSquare className="h-4 w-4 text-amber-400" />
+              <div className="flex items-center gap-2 text-slate-400 text-sm">
+                <MessageSquare className="h-4 w-4 text-amber-400 flex-shrink-0" />
                 <span>{getThreadsCount(forum.threads)} threads</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
-                <Calendar className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-slate-400 text-sm col-span-2 lg:col-span-1">
+                <Calendar className="h-4 w-4 flex-shrink-0" />
                 <span>Created {formatRelativeTime(forum.createdAt)}</span>
               </div>
             </div>
@@ -204,14 +204,14 @@ export default function ForumDetailPage() {
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg text-white flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-base sm:text-lg text-white flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
               Forum Threads ({threads.length})
             </CardTitle>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+                <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   New Thread
                 </Button>
@@ -259,18 +259,18 @@ export default function ForumDetailPage() {
             </p>
           ) : (
             threads.map((thread) => (
-              <div key={thread._id} className="p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
-                <div className="flex items-start justify-between mb-3">
+              <div key={thread._id} className="p-3 sm:p-4 rounded-lg bg-[#12121a] border border-[#2a2a3e]">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-2">
                   <h4
                     className="text-white font-medium cursor-pointer hover:text-amber-400 transition-colors"
                     onClick={() => setExpandedThread(expandedThread === thread._id ? null : thread._id)}
                   >
                     {thread.title}
                   </h4>
-                  <span className="text-xs text-slate-500">{thread.replies?.length || 0} replies</span>
+                  <span className="text-xs text-slate-500 flex-shrink-0">{thread.replies?.length || 0} replies</span>
                 </div>
                 <p className="text-sm text-slate-400 mb-3">{thread.content}</p>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={getAvatarUrl(thread.author?.avatar)} />
                     <AvatarFallback className="bg-amber-500/20 text-amber-400 text-xs">
@@ -285,9 +285,9 @@ export default function ForumDetailPage() {
                 {expandedThread === thread._id && (
                   <div className="mt-4 pt-4 border-t border-[#2a2a3e] space-y-3">
                       {thread.replies?.map((reply) => (
-                        <div key={reply._id} className="pl-4 border-l-2 border-amber-500/30">
+                        <div key={reply._id} className="pl-3 sm:pl-4 border-l-2 border-amber-500/30">
                           <p className="text-sm text-slate-300">{reply.content}</p>
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
                             <Avatar className="h-5 w-5">
                               <AvatarImage src={getAvatarUrl(reply.author?.avatar)} />
                               <AvatarFallback className="bg-amber-500/20 text-amber-400 text-xs">
@@ -301,18 +301,18 @@ export default function ForumDetailPage() {
                         </div>
                       ))}
 
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
                       <Input
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="Write a reply..."
-                        className="bg-[#1e1e2e] border-[#2a2a3e] text-white text-sm"
+                        className="bg-[#1e1e2e] border-[#2a2a3e] text-white text-sm flex-1"
                       />
                       <Button
                         size="sm"
                         onClick={() => handleReply(thread._id)}
                         disabled={isReplying || !replyContent}
-                        className="bg-amber-500 hover:bg-amber-600"
+                        className="bg-amber-500 hover:bg-amber-600 w-full sm:w-auto"
                       >
                         {isReplying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                       </Button>

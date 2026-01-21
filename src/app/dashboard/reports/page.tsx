@@ -82,8 +82,8 @@ export default function ReportsPage() {
     <ProtectedRoute requireAdmin>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Reports</h1>
-          <p className="text-slate-400 mt-1">Review and manage reported content</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Reports</h1>
+          <p className="text-slate-400 mt-1 text-sm sm:text-base">Review and manage reported content</p>
         </div>
 
         {isLoading ? (
@@ -98,20 +98,20 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {reports.map((report) => {
               const status = statusConfig[report.status]
               const StatusIcon = status.icon
 
                 return (
                   <Card key={report._id || report.id} className="bg-[#1e1e2e] border-[#2a2a3e]">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="capitalize border-[#2a2a3e] text-slate-400">
+                  <CardContent className="p-3 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="capitalize border-[#2a2a3e] text-slate-400 text-xs">
                           {report.contentType}
                         </Badge>
-                        <Badge className={status.color}>
+                        <Badge className={`${status.color} text-xs`}>
                           <StatusIcon className="h-3 w-3 mr-1" />
                           {status.label}
                         </Badge>
@@ -119,19 +119,19 @@ export default function ReportsPage() {
                       <span className="text-xs text-slate-500">{formatRelativeTime(report.createdAt)}</span>
                     </div>
 
-                    <div className="space-y-2 mb-4">
-                      <p className="text-white font-medium">{report.reason}</p>
-                      <p className="text-sm text-slate-400">{report.description}</p>
+                    <div className="space-y-2 mb-3 sm:mb-4">
+                      <p className="text-white font-medium text-sm sm:text-base">{report.reason}</p>
+                      <p className="text-xs sm:text-sm text-slate-400">{report.description}</p>
                       <p className="text-xs text-slate-500">Reported by: {report.reporter.name}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 pt-4 border-t border-[#2a2a3e]">
-                      <span className="text-sm text-slate-400">Update Status:</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-[#2a2a3e]">
+                      <span className="text-xs sm:text-sm text-slate-400">Update Status:</span>
                         <Select
                           value={report.status}
                           onValueChange={(value) => handleStatusUpdate(report._id || report.id || '', value as Report['status'])}
                         >
-                        <SelectTrigger className="w-[150px] bg-[#12121a] border-[#2a2a3e] text-white">
+                        <SelectTrigger className="w-full sm:w-[150px] bg-[#12121a] border-[#2a2a3e] text-white text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1e1e2e] border-[#2a2a3e]">

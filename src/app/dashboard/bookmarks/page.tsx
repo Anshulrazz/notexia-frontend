@@ -73,19 +73,19 @@ export default function BookmarksPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Bookmark className="h-6 w-6 text-violet-400" />
+        <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+          <Bookmark className="h-5 w-5 sm:h-6 sm:w-6 text-violet-400" />
           Bookmarks
         </h1>
-        <p className="text-slate-400 mt-1">Your saved notes, doubts, and blogs</p>
+        <p className="text-slate-400 mt-1 text-sm sm:text-base">Your saved notes, doubts, and blogs</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e]">
-          <TabsTrigger value="all" className="data-[state=active]:bg-violet-500/20">All</TabsTrigger>
-          <TabsTrigger value="note" className="data-[state=active]:bg-violet-500/20">Notes</TabsTrigger>
-          <TabsTrigger value="doubt" className="data-[state=active]:bg-violet-500/20">Doubts</TabsTrigger>
-          <TabsTrigger value="blog" className="data-[state=active]:bg-violet-500/20">Blogs</TabsTrigger>
+        <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e] w-full sm:w-auto grid grid-cols-4 sm:flex">
+          <TabsTrigger value="all" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">All</TabsTrigger>
+          <TabsTrigger value="note" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">Notes</TabsTrigger>
+          <TabsTrigger value="doubt" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">Doubts</TabsTrigger>
+          <TabsTrigger value="blog" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">Blogs</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
@@ -100,35 +100,35 @@ export default function BookmarksPage() {
               <p className="text-slate-500 text-sm mt-1">Save items to access them quickly later</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {bookmarks.map((bookmark) => (
                 <Card key={bookmark._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors group">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${getColor(bookmark.itemType)} flex items-center justify-center`}>
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-start justify-between mb-3 gap-2">
+                      <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br ${getColor(bookmark.itemType)} flex items-center justify-center flex-shrink-0`}>
                         {getIcon(bookmark.itemType)}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => handleRemoveBookmark(bookmark._id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
 
-                    <Badge variant="secondary" className="mb-2 capitalize bg-slate-500/10 text-slate-400 border-slate-500/30">
+                    <Badge variant="secondary" className="mb-2 capitalize bg-slate-500/10 text-slate-400 border-slate-500/30 text-xs">
                       {bookmark.itemType}
                     </Badge>
 
                     <Link href={getHref(bookmark)}>
-                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-violet-400 transition-colors">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-violet-400 transition-colors">
                         {bookmark.item?.title || 'Untitled'}
                       </h3>
                     </Link>
 
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
                       {bookmark.item?.tags?.slice(0, 2).map((tag) => (
                         <Badge key={tag} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
                           {tag}
@@ -136,15 +136,15 @@ export default function BookmarksPage() {
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-2 pt-4 border-t border-[#2a2a3e]">
-                      <Avatar className="h-7 w-7">
+                    <div className="flex items-center gap-2 pt-3 sm:pt-4 border-t border-[#2a2a3e]">
+                      <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
                         <AvatarImage src={getAvatarUrl(bookmark.item?.author?.avatar)} />
                         <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
                           {getInitials(bookmark.item?.author?.name || 'U')}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="text-xs font-medium text-white">{bookmark.item?.author?.name || 'Unknown'}</p>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-white truncate">{bookmark.item?.author?.name || 'Unknown'}</p>
                         <p className="text-xs text-slate-500">{formatRelativeTime(bookmark.item?.createdAt || bookmark.createdAt)}</p>
                       </div>
                     </div>

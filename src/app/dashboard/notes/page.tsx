@@ -175,12 +175,12 @@ export default function NotesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Notes</h1>
-          <p className="text-slate-400 mt-1">Browse and share study materials</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Notes</h1>
+          <p className="text-slate-400 mt-1 text-sm sm:text-base">Browse and share study materials</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white">
+            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Upload Note
             </Button>
@@ -308,72 +308,72 @@ export default function NotesPage() {
           <p className="text-slate-400">No notes found. Be the first to share!</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {notes.map((note) => (
 <Card key={note._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-violet-500/50 transition-colors">
-                <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
-                        {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
-                      </Badge>
-                      <ReportButton contentType="note" contentId={note._id} />
-                    </div>
-                    <Link href={`/dashboard/notes/${note._id}`}>
-                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1 hover:text-violet-400 transition-colors">{note.title}</h3>
-                    </Link>
-                    <p className="text-sm text-slate-400 mb-4 line-clamp-2">{note.description || 'No description'}</p>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {(Array.isArray(note.tags) ? note.tags : []).slice(0, 3).map((tag) => {
-                      const tagName = typeof tag === 'object' && tag !== null ? (tag as { name?: string }).name || '' : tag
-                      return (
-                        <Badge key={tagName} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
-                          {tagName}
-                        </Badge>
-                      )
-                    })}
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-[#2a2a3e]">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage src={getAvatarUrl(note.uploader?.avatar)} />
-                      <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
-                        {getInitials(note.uploader?.name || 'U')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-xs font-medium text-white">{note.uploader?.name || 'Unknown'}</p>
-                      <p className="text-xs text-slate-500">{formatRelativeTime(note.createdAt)}</p>
-                    </div>
+              <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between mb-3 gap-2">
+                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30 text-xs truncate max-w-[150px]">
+                      {typeof note.subject === 'object' && note.subject !== null ? (note.subject as { name?: string }).name || 'Unknown' : note.subject}
+                    </Badge>
+                    <ReportButton contentType="note" contentId={note._id} />
                   </div>
-<div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
-                        onClick={() => handleLike(note._id)}
-                      >
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                      <span className="text-xs text-slate-500">{note.likes?.length || 0}</span>
-                      <Link href={`/dashboard/notes/${note._id}`} className="flex items-center gap-1 text-slate-400 hover:text-violet-400">
-                        <MessageCircle className="h-4 w-4" />
-                        <span className="text-xs">{note.comments?.length || 0}</span>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10"
-                        onClick={() => handleDownload(note)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <Link href={`/dashboard/notes/${note._id}`}>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-2 line-clamp-1 hover:text-violet-400 transition-colors">{note.title}</h3>
+                  </Link>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 line-clamp-2">{note.description || 'No description'}</p>
+                <div className="flex flex-wrap gap-1 mb-3 sm:mb-4">
+                  {(Array.isArray(note.tags) ? note.tags : []).slice(0, 3).map((tag) => {
+                    const tagName = typeof tag === 'object' && tag !== null ? (tag as { name?: string }).name || '' : tag
+                    return (
+                      <Badge key={tagName} variant="outline" className="text-xs border-[#2a2a3e] text-slate-400">
+                        {tagName}
+                      </Badge>
+                    )
+                  })}
+              </div>
+              <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-[#2a2a3e]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Avatar className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0">
+                    <AvatarImage src={getAvatarUrl(note.uploader?.avatar)} />
+                    <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs">
+                      {getInitials(note.uploader?.name || 'U')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white truncate">{note.uploader?.name || 'Unknown'}</p>
+                    <p className="text-xs text-slate-500">{formatRelativeTime(note.createdAt)}</p>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+<div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 hover:text-pink-400 hover:bg-pink-500/10"
+                      onClick={() => handleLike(note._id)}
+                    >
+                      <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    </Button>
+                    <span className="text-xs text-slate-500">{note.likes?.length || 0}</span>
+                    <Link href={`/dashboard/notes/${note._id}`} className="flex items-center gap-1 text-slate-400 hover:text-violet-400 ml-1">
+                      <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <span className="text-xs">{note.comments?.length || 0}</span>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10"
+                      onClick={() => handleDownload(note)}
+                    >
+                      <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    </Button>
+                  </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )}
     </div>
   )
 }

@@ -170,17 +170,17 @@ export default function NoteDetailPage() {
 
       <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
         <CardHeader className="pb-4">
-          <div className="flex items-start justify-between">
-            <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <Badge variant="secondary" className="bg-violet-500/10 text-violet-400 border-violet-500/30">
               {getSubjectName(note.subject)}
             </Badge>
             <ReportButton contentType="note" contentId={note._id} />
           </div>
-          <CardTitle className="text-2xl text-white">{note.title}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl text-white mt-4">{note.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {note.description && (
-            <div className="text-slate-300 leading-relaxed">
+            <div className="text-slate-300 leading-relaxed overflow-x-auto">
               <MarkdownRenderer content={note.description} />
             </div>
           )}
@@ -194,26 +194,26 @@ export default function NoteDetailPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-b border-[#2a2a3e]">
-            <div className="flex items-center gap-2 text-slate-400">
-              <Heart className="h-4 w-4 text-pink-400" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 py-4 border-t border-b border-[#2a2a3e]">
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Heart className="h-4 w-4 text-pink-400 flex-shrink-0" />
               <span>{note.likes?.length || 0} likes</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <Download className="h-4 w-4 text-violet-400" />
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Download className="h-4 w-4 text-violet-400 flex-shrink-0" />
               <span>{note.downloads || 0} downloads</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <Calendar className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Calendar className="h-4 w-4 flex-shrink-0" />
               <span>{formatRelativeTime(note.createdAt)}</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <FileText className="h-4 w-4" />
-              <span>{note.file?.filename || 'File'}</span>
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <FileText className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{note.file?.filename || 'File'}</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={getAvatarUrl(note.uploader?.avatar)} />
@@ -227,10 +227,10 @@ export default function NoteDetailPage() {
               </div>
             </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <Button
                   variant="outline"
-                  className={`border-[#2a2a3e] ${isBookmarked ? 'text-violet-400 border-violet-500/50' : 'text-slate-300 hover:text-violet-400 hover:border-violet-500/50'}`}
+                  className={`border-[#2a2a3e] w-full sm:w-auto ${isBookmarked ? 'text-violet-400 border-violet-500/50' : 'text-slate-300 hover:text-violet-400 hover:border-violet-500/50'}`}
                   onClick={handleBookmark}
                 >
                   {isBookmarked ? <BookmarkCheck className="h-4 w-4 mr-2" /> : <Bookmark className="h-4 w-4 mr-2" />}
@@ -238,14 +238,14 @@ export default function NoteDetailPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50"
+                  className="border-[#2a2a3e] text-slate-300 hover:text-pink-400 hover:border-pink-500/50 w-full sm:w-auto"
                   onClick={handleLike}
                 >
                   <Heart className="h-4 w-4 mr-2" />
                   Like
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
+                  className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 w-full sm:w-auto"
                   onClick={handleDownload}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -269,13 +269,13 @@ export default function NoteDetailPage() {
 
         <Card className="bg-[#1e1e2e] border-[#2a2a3e]">
           <CardHeader>
-            <CardTitle className="text-lg text-white flex items-center gap-2">
+            <CardTitle className="text-base sm:text-lg text-white flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-violet-400" />
               Comments ({note.comments?.length || 0})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Textarea
                 placeholder="Add a comment..."
                 value={commentText}
@@ -285,7 +285,7 @@ export default function NoteDetailPage() {
               <Button
                 onClick={handleAddComment}
                 disabled={!commentText.trim() || isSubmittingComment}
-                className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 self-end"
+                className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 sm:self-end w-full sm:w-auto"
               >
                 {isSubmittingComment ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

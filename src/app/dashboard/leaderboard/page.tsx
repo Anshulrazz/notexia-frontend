@@ -63,11 +63,11 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Trophy className="h-6 w-6 text-yellow-400" />
+        <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+          <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
           Leaderboard
         </h1>
-        <p className="text-slate-400 mt-1">Top contributors in the community</p>
+        <p className="text-slate-400 mt-1 text-sm sm:text-base">Top contributors in the community</p>
         </div>
 
         <div className="relative">
@@ -91,10 +91,10 @@ export default function LeaderboardPage() {
         </div>
 
       <Tabs value={period} onValueChange={(v) => setPeriod(v as 'all' | 'month' | 'week')} className="w-full">
-        <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e]">
-          <TabsTrigger value="all" className="data-[state=active]:bg-violet-500/20">All Time</TabsTrigger>
-          <TabsTrigger value="month" className="data-[state=active]:bg-violet-500/20">This Month</TabsTrigger>
-          <TabsTrigger value="week" className="data-[state=active]:bg-violet-500/20">This Week</TabsTrigger>
+        <TabsList className="bg-[#1e1e2e] border border-[#2a2a3e] w-full sm:w-auto grid grid-cols-3 sm:flex">
+          <TabsTrigger value="all" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">All Time</TabsTrigger>
+          <TabsTrigger value="month" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">This Month</TabsTrigger>
+          <TabsTrigger value="week" className="data-[state=active]:bg-violet-500/20 text-xs sm:text-sm">This Week</TabsTrigger>
         </TabsList>
 
         <TabsContent value={period} className="mt-6">
@@ -109,38 +109,38 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {topThree.map((user) => (
                   <Card key={user._id} className={`${getRankBg(user.rank)} border relative overflow-hidden`}>
                     {user.rank === 1 && (
                       <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-full blur-2xl" />
                     )}
-                    <CardContent className="p-6 text-center relative">
-                      <div className="flex justify-center mb-4">
+                    <CardContent className="p-4 sm:p-6 text-center relative">
+                      <div className="flex justify-center mb-3 sm:mb-4">
                         {getRankIcon(user.rank)}
                       </div>
-                      <Avatar className="h-16 w-16 mx-auto mb-4 ring-4 ring-violet-500/20">
+                      <Avatar className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 ring-4 ring-violet-500/20">
                         <AvatarImage src={getAvatarUrl(user.avatar)} />
-                        <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-xl font-bold">
+                        <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white text-lg sm:text-xl font-bold">
                           {getInitials(user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <h3 className="text-lg font-semibold text-white mb-1">{user.name}</h3>
-                      <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-1 truncate">{user.name}</h3>
+                      <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 mb-3 sm:mb-4">
                         <TrendingUp className="h-3 w-3 mr-1" />
                         {user.points.toLocaleString()} points
                       </Badge>
-                        <div className="grid grid-cols-3 gap-2 text-center pt-4 border-t border-[#2a2a3e]">
+                        <div className="grid grid-cols-3 gap-2 text-center pt-3 sm:pt-4 border-t border-[#2a2a3e]">
                           <div>
-                            <p className="text-lg font-bold text-white">{user.stats?.notesCreated || 0}</p>
+                            <p className="text-base sm:text-lg font-bold text-white">{user.stats?.notesCreated || 0}</p>
                             <p className="text-xs text-slate-500">Notes</p>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-white">{user.stats?.doubtsAnswered || 0}</p>
+                            <p className="text-base sm:text-lg font-bold text-white">{user.stats?.doubtsAnswered || 0}</p>
                             <p className="text-xs text-slate-500">Answers</p>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-white">{user.stats?.blogsCreated || 0}</p>
+                            <p className="text-base sm:text-lg font-bold text-white">{user.stats?.blogsCreated || 0}</p>
                             <p className="text-xs text-slate-500">Blogs</p>
                           </div>
                         </div>
@@ -154,34 +154,34 @@ export default function LeaderboardPage() {
                   <CardHeader>
                     <CardTitle className="text-white">Rankings</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="divide-y divide-[#2a2a3e]">
-                      {rest.map((user) => (
-                        <div key={user._id} className="flex items-center justify-between p-4 hover:bg-[#12121a] transition-colors">
-                          <div className="flex items-center gap-4">
-                            <div className="w-8 text-center">
-                              {getRankIcon(user.rank)}
-                            </div>
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src={getAvatarUrl(user.avatar)} />
-                              <AvatarFallback className="bg-violet-500/20 text-violet-400">
-                                {getInitials(user.name)}
-                              </AvatarFallback>
-                            </Avatar>
-                              <div>
-                                <p className="text-white font-medium">{user.name}</p>
-                                <p className="text-xs text-slate-500">
-                                  {user.stats?.notesCreated || 0} notes • {user.stats?.doubtsAnswered || 0} answers • {user.stats?.blogsCreated || 0} blogs
-                                </p>
+                    <CardContent className="p-0">
+                      <div className="divide-y divide-[#2a2a3e]">
+                        {rest.map((user) => (
+                          <div key={user._id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 hover:bg-[#12121a] transition-colors gap-3">
+                            <div className="flex items-center gap-3 sm:gap-4">
+                              <div className="w-8 text-center flex-shrink-0">
+                                {getRankIcon(user.rank)}
                               </div>
+                              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                                <AvatarImage src={getAvatarUrl(user.avatar)} />
+                                <AvatarFallback className="bg-violet-500/20 text-violet-400 text-xs sm:text-sm">
+                                  {getInitials(user.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                                <div className="min-w-0">
+                                  <p className="text-white font-medium truncate">{user.name}</p>
+                                  <p className="text-xs text-slate-500">
+                                    {user.stats?.notesCreated || 0} notes • {user.stats?.doubtsAnswered || 0} answers • {user.stats?.blogsCreated || 0} blogs
+                                  </p>
+                                </div>
+                            </div>
+                            <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/30 self-end sm:self-auto">
+                              {user.points.toLocaleString()} pts
+                            </Badge>
                           </div>
-                          <Badge className="bg-violet-500/10 text-violet-400 border-violet-500/30">
-                            {user.points.toLocaleString()} pts
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
+                        ))}
+                      </div>
+                    </CardContent>
                 </Card>
               )}
             </div>

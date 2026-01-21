@@ -118,12 +118,12 @@ export default function ForumsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Forums</h1>
-          <p className="text-slate-400 mt-1">Join communities and discuss topics</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Forums</h1>
+          <p className="text-slate-400 mt-1 text-sm sm:text-base">Join communities and discuss topics</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white">
+            <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Create Forum
             </Button>
@@ -193,44 +193,44 @@ export default function ForumsPage() {
           <p className="text-slate-400">No forums found. Create the first one!</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {forums.map((forum) => (
             <Card key={forum._id} className="bg-[#1e1e2e] border-[#2a2a3e] hover:border-amber-500/50 transition-colors">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                      <span className="text-white font-bold">{renderValue(forum.name, 'F')[0]}</span>
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start justify-between mb-3 gap-2">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm sm:text-base">{renderValue(forum.name, 'F')[0]}</span>
                     </div>
                     <ReportButton contentType="forum" contentId={forum._id} />
                   </div>
 
                   <Link href={`/dashboard/forums/${forum._id}`}>
-                      <h3 className="text-lg font-semibold text-white mb-2 hover:text-amber-400 transition-colors">{renderValue(forum.name, 'Unnamed')}</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 hover:text-amber-400 transition-colors line-clamp-1">{renderValue(forum.name, 'Unnamed')}</h3>
                     </Link>
-                  <p className="text-sm text-slate-400 mb-4 line-clamp-2">{renderValue(forum.description, 'No description')}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 line-clamp-2">{renderValue(forum.description, 'No description')}</p>
 
-                <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
+                <div className="flex items-center gap-4 text-xs sm:text-sm text-slate-500 mb-3 sm:mb-4">
                     <span className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
+                      <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       {renderValue(forum.members, '0')} members
                     </span>
                   </div>
 
                   {forum.creator && (
-                    <div className="flex items-center gap-2 mb-4 pt-3 border-t border-[#2a2a3e]">
-                      <Avatar className="h-6 w-6">
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4 pt-2 sm:pt-3 border-t border-[#2a2a3e]">
+                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
                         <AvatarImage src={getAvatarUrl(forum.creator?.avatar)} />
                         <AvatarFallback className="bg-amber-500/20 text-amber-400 text-xs">
                           {getInitials(forum.creator?.name || 'U')}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs text-slate-400">Created by {forum.creator?.name || 'Unknown'}</span>
+                      <span className="text-xs text-slate-400 truncate">Created by {forum.creator?.name || 'Unknown'}</span>
                     </div>
                   )}
 
 
                 <Button
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500"
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-sm"
                   onClick={() => handleJoinForum(forum._id)}
                 >
                   Join
